@@ -1,0 +1,125 @@
+{
+  "types": {
+    "managementZone": {
+      "type": "object",
+      "summaryPattern": "{name}",
+      "properties": {}
+    },
+    "recipient": {
+      "type": "object",
+      "summaryPattern": "{number}",
+      "properties": {}
+    },
+    "pythonRemote": {
+      "type": "object",
+      "properties": {
+        "pollingInterval": {
+          "displayName": "Polling Interval (seconds)",
+          "type": "integer",
+          "nullable": false,
+          "default": 300,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 86400
+            }
+          ]
+        },
+        "lookbackWindow": {
+          "displayName": "Lookback Window (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 5,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 1440
+            }
+          ]
+        },
+        "maxProblemsPerExecution": {
+          "displayName": "Maximum Problems Per Execution",
+          "type": "integer",
+          "nullable": true,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          ]
+        }
+      }
+    },
+    "pythonLocal": {
+      "type": "object",
+      "properties": {
+        "pollingInterval": {
+          "displayName": "Polling Interval (seconds)",
+          "type": "integer",
+          "nullable": false,
+          "default": 300,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 86400
+            }
+          ]
+        },
+        "lookbackWindow": {
+          "displayName": "Lookback Window (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 5,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 1440
+            }
+          ]
+        },
+        "maxProblemsPerExecution": {
+          "displayName": "Maximum Problems Per Execution",
+          "type": "integer",
+          "nullable": true,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          ]
+        }
+      }
+    }
+  },
+  "dynatrace": "1",
+  "description": "DT SMS Plugin configuration",
+  "schemaId": "python-extension.activation",
+  "displayName": "DT SMS Plugin",
+  "ownerProductManagement": "Your Team",
+  "ownerDevelopment": "Your Team",
+  "maturity": "GENERAL_AVAILABILITY",
+  "allowedScopes": [
+    "tenant"
+  ],
+  "multiObject": false,
+  "properties": {
+    "pythonLocal": {
+      "displayName": "Python Local Extension",
+      "type": {
+        "$ref": "#/types/pythonLocal"
+      }
+    },
+    "pythonRemote": {
+      "displayName": "Python Remote Extension",
+      "type": {
+        "$ref": "#/types/pythonRemote"
+      }
+    }
+  }
+}
