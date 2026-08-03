@@ -3,12 +3,38 @@
     "managementZone": {
       "type": "object",
       "summaryPattern": "{name}",
-      "properties": {}
+      "properties": {
+        "name": {
+          "displayName": "Management Zone",
+          "type": "text",
+          "nullable": false,
+          "constraints": [
+            {
+              "type": "LENGTH",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          ]
+        }
+      }
     },
     "recipient": {
       "type": "object",
       "summaryPattern": "{number}",
-      "properties": {}
+      "properties": {
+        "number": {
+          "displayName": "Phone Number",
+          "type": "text",
+          "nullable": false,
+          "constraints": [
+            {
+              "type": "LENGTH",
+              "minLength": 1,
+              "maxLength": 50
+            }
+          ]
+        }
+      }
     },
     "pythonRemote": {
       "type": "object",
@@ -50,6 +76,153 @@
               "maximum": 1000000
             }
           ]
+        },
+        "managementZones": {
+          "displayName": "Management Zones",
+          "type": "list",
+          "nullable": false,
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/managementZone"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Management Zone"
+          }
+        },
+        "l1Recipients": {
+          "displayName": "L1 Recipients",
+          "type": "list",
+          "nullable": false,
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          }
+        },
+        "l1Severities": {
+          "displayName": "L1 Severities",
+          "type": "set",
+          "nullable": false,
+          "items": {
+            "type": "enum",
+            "enum": [
+              "CUSTOM",
+              "INFO",
+              "ERROR",
+              "SLOWDOWN",
+              "AVAILABILITY",
+              "MONITORING_UNAVAILABLE"
+            ]
+          }
+        },
+        "l2Recipients": {
+          "displayName": "L2 Recipients",
+          "type": "list",
+          "nullable": false,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          }
+        },
+        "l2Severities": {
+          "displayName": "L2 Severities",
+          "type": "set",
+          "nullable": false,
+          "items": {
+            "type": "enum",
+            "enum": [
+              "CUSTOM",
+              "INFO",
+              "ERROR",
+              "SLOWDOWN",
+              "AVAILABILITY",
+              "MONITORING_UNAVAILABLE"
+            ]
+          }
+        },
+        "l2AfterMinutes": {
+          "displayName": "L2 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 30
+        },
+        "l3Recipients": {
+          "displayName": "L3 Recipients",
+          "type": "list",
+          "nullable": false,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          }
+        },
+        "l3Severities": {
+          "displayName": "L3 Severities",
+          "type": "set",
+          "nullable": false,
+          "items": {
+            "type": "enum",
+            "enum": [
+              "CUSTOM",
+              "INFO",
+              "ERROR",
+              "SLOWDOWN",
+              "AVAILABILITY",
+              "MONITORING_UNAVAILABLE"
+            ]
+          }
+        },
+        "l3AfterMinutes": {
+          "displayName": "L3 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 60
+        },
+        "smsApiUrl": {
+          "displayName": "SMS API URL",
+          "type": "text",
+          "nullable": false
+        },
+        "smsApiUsername": {
+          "displayName": "SMS API Username",
+          "type": "text",
+          "nullable": false
+        },
+        "smsApiPassword": {
+          "displayName": "SMS API Password",
+          "type": "secret",
+          "nullable": false
+        },
+        "smsApiTimeout": {
+          "displayName": "SMS API Timeout (seconds)",
+          "type": "integer",
+          "nullable": false,
+          "default": 30
+        },
+        "dryRun": {
+          "displayName": "Dry Run",
+          "type": "boolean",
+          "nullable": false,
+          "default": false
+        },
+        "payloadLogging": {
+          "displayName": "Payload Logging",
+          "type": "boolean",
+          "nullable": false,
+          "default": false
         }
       }
     },
@@ -93,6 +266,153 @@
               "maximum": 1000000
             }
           ]
+        },
+        "managementZones": {
+          "displayName": "Management Zones",
+          "type": "list",
+          "nullable": false,
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/managementZone"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Management Zone"
+          }
+        },
+        "l1Recipients": {
+          "displayName": "L1 Recipients",
+          "type": "list",
+          "nullable": false,
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          }
+        },
+        "l1Severities": {
+          "displayName": "L1 Severities",
+          "type": "set",
+          "nullable": false,
+          "items": {
+            "type": "enum",
+            "enum": [
+              "CUSTOM",
+              "INFO",
+              "ERROR",
+              "SLOWDOWN",
+              "AVAILABILITY",
+              "MONITORING_UNAVAILABLE"
+            ]
+          }
+        },
+        "l2Recipients": {
+          "displayName": "L2 Recipients",
+          "type": "list",
+          "nullable": false,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          }
+        },
+        "l2Severities": {
+          "displayName": "L2 Severities",
+          "type": "set",
+          "nullable": false,
+          "items": {
+            "type": "enum",
+            "enum": [
+              "CUSTOM",
+              "INFO",
+              "ERROR",
+              "SLOWDOWN",
+              "AVAILABILITY",
+              "MONITORING_UNAVAILABLE"
+            ]
+          }
+        },
+        "l2AfterMinutes": {
+          "displayName": "L2 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 30
+        },
+        "l3Recipients": {
+          "displayName": "L3 Recipients",
+          "type": "list",
+          "nullable": false,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          }
+        },
+        "l3Severities": {
+          "displayName": "L3 Severities",
+          "type": "set",
+          "nullable": false,
+          "items": {
+            "type": "enum",
+            "enum": [
+              "CUSTOM",
+              "INFO",
+              "ERROR",
+              "SLOWDOWN",
+              "AVAILABILITY",
+              "MONITORING_UNAVAILABLE"
+            ]
+          }
+        },
+        "l3AfterMinutes": {
+          "displayName": "L3 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 60
+        },
+        "smsApiUrl": {
+          "displayName": "SMS API URL",
+          "type": "text",
+          "nullable": false
+        },
+        "smsApiUsername": {
+          "displayName": "SMS API Username",
+          "type": "text",
+          "nullable": false
+        },
+        "smsApiPassword": {
+          "displayName": "SMS API Password",
+          "type": "secret",
+          "nullable": false
+        },
+        "smsApiTimeout": {
+          "displayName": "SMS API Timeout (seconds)",
+          "type": "integer",
+          "nullable": false,
+          "default": 30
+        },
+        "dryRun": {
+          "displayName": "Dry Run",
+          "type": "boolean",
+          "nullable": false,
+          "default": false
+        },
+        "payloadLogging": {
+          "displayName": "Payload Logging",
+          "type": "boolean",
+          "nullable": false,
+          "default": false
         }
       }
     }

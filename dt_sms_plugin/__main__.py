@@ -1,34 +1,81 @@
+import time
+
 from dynatrace_extension import Extension, Status, StatusValue
+
+from dt_sms_plugin.cache.cache_manager import CacheManager
+from dt_sms_plugin.clients.dynatrace_client import DynatraceClient
+from dt_sms_plugin.clients.sms_client import SmsClient
+from dt_sms_plugin.config.settings import load_settings
+from dt_sms_plugin.config.validator import validate_settings
+from dt_sms_plugin.metrics.publisher import MetricsPublisher
+from dt_sms_plugin.processing.sms_engine import SmsEngine
+from dt_sms_plugin.utils.logger import log_error, log_info
 
 
 class ExtensionImpl(Extension):
+    def initialize(self) -> None:
+        log_info(self.logger, "Initializing DT SMS Plugin...")
+
+        self.settings = load_settings(self.activation_config)
+        validate_settings(self.settings)
+
+        self.metrics = MetricsPublisher(self)
+
+        self.cache = CacheManager(self.persistence_path)
+        self.cache.load()
+
+        self.dt_client = DynatraceClient(
+            tenant_url=self.activation_context.dt_url,
+            api_token=self.activation_context.api_token,
+            timeout=30,
+        )
+
+        self.sms_client = SmsClient(
+            url=self.settings.sms_api.url,
+            username=self.settings.sms_api.username,
+            password=self.settings.sms_api.password,
+            timeout=self.settings.sms_api.timeout,
+        )
+
+        self.engine = SmsEngine(
+            settings=self.settings,
+            cache=self.cache,
+            sms_client=self.sms_client,
+        )
+
+        log_info(self.logger, "Initialization completed.")
+
     def query(self):
-        """
-        The query method is automatically scheduled to run every minute
-        """
-        self.logger.info("query method started for dt_sms_plugin.")
+        start = time.perf_counter()
 
-        for endpoint in self.activation_config["endpoints"]:
-            url = endpoint["url"]
-            # user = endpoint["user"]
-            # password = endpoint["password"]
-            self.logger.debug(f"Running endpoint with url '{url}'")
+        try:
+            log_info(self.logger, "Query started.")
 
-            # Your extension code goes here, e.g.
-            # response = requests.get(url, auth=(user, password))
+            problems = self.dt_client.fetch_problems(
+                lookback_minutes=self.settings.lookback_window,
+                management_zones=[mz.name for mz in self.settings.management_zones],
+                max_problems=self.settings.max_problems_per_execution,
+            )
 
-            # Report metrics with
-            self.report_metric("metric_key", 1, dimensions={"key": "value"})
+            self.engine.process(problems)
 
-        self.logger.info("query method ended for dt_sms_plugin.")
+            elapsed_ms = (time.perf_counter() - start) * 1000
+
+            self.metrics.processing_time(elapsed_ms)
+            self.metrics.problems_processed(len(problems))
+            self.metrics.execution_health(True)
+
+            log_info(
+                self.logger,
+                f"Processed {len(problems)} problems in {elapsed_ms:.2f} ms.",
+            )
+
+        except Exception as exc:
+            self.metrics.execution_health(False)
+            log_error(self.logger, str(exc))
+            raise
 
     def fastcheck(self) -> Status:
-        """
-        Use to check if the extension can run.
-        If this Activegate cannot run this extension, you can
-        raise an Exception or return StatusValue.ERROR.
-        This does not run for OneAgent extensions.
-        """
         return Status(StatusValue.OK)
 
 
