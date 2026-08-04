@@ -5,6 +5,15 @@
 CACHE_FILE_NAME = "problem_cache.json"
 CACHE_VERSION = 1
 
+CACHE_KEY_PROBLEMS = "problems"
+
+CACHE_KEY_PROBLEM_ID = "problem_id"
+CACHE_KEY_STATUS = "status"
+CACHE_KEY_START_TIME = "start_time"
+CACHE_KEY_LAST_UPDATE_TIME = "last_update_time"
+CACHE_KEY_ESCALATION_LEVEL = "escalation_level"
+CACHE_KEY_LAST_NOTIFICATION_TYPE = "last_notification_type"
+
 # =============================================================================
 # Problem Status
 # =============================================================================
@@ -28,6 +37,12 @@ LEVEL_L1 = "L1"
 LEVEL_L2 = "L2"
 LEVEL_L3 = "L3"
 
+ESCALATION_LEVELS = (
+    LEVEL_L1,
+    LEVEL_L2,
+    LEVEL_L3,
+)
+
 # =============================================================================
 # Severity Levels
 # =============================================================================
@@ -47,30 +62,6 @@ SEVERITIES = (
     SEVERITY_AVAILABILITY,
     SEVERITY_MONITORING_UNAVAILABLE,
 )
-
-# =============================================================================
-# Escalation Recipients
-# =============================================================================
-
-ESCALATION_LEVELS = (
-    LEVEL_L1,
-    LEVEL_L2,
-    LEVEL_L3,
-)
-
-# =============================================================================
-# Cache Keys
-# =============================================================================
-
-CACHE_KEY_PROBLEMS = "problems"
-
-CACHE_KEY_PROBLEM_ID = "problem_id"
-CACHE_KEY_STATUS = "status"
-CACHE_KEY_START_TIME = "start_time"
-CACHE_KEY_LAST_UPDATE_TIME = "last_update_time"
-
-CACHE_KEY_ESCALATION_LEVEL = "escalation_level"
-CACHE_KEY_LAST_NOTIFICATION_TYPE = "last_notification_type"
 
 # =============================================================================
 # Metric Keys

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import requests
 
@@ -32,19 +32,23 @@ class DynatraceClient:
         management_zones: list[str],
         max_problems: int | None,
     ) -> list[Problem]:
-        from_time = (datetime.now(UTC) - timedelta(minutes=lookback_minutes)).isoformat()
-
         params = {
-            "from": from_time,
             "pageSize": 100,
+            "from": f"-{lookback_minutes}m",
+            "to": "now",
         }
 
+        selectors = ['status("open")']
+
         if management_zones:
-            params["managementZones"] = ",".join(management_zones)
+            zones = ",".join(f'"{mz}"' for mz in management_zones)
+            selectors.append(f"managementZones({zones})")
+
+        params["problemSelector"] = ",".join(selectors)
 
         url = f"{self._base_url}/api/v2/problems"
 
-        problems = []
+        problems: list[Problem] = []
         next_page_key = None
 
         while True:
@@ -56,7 +60,12 @@ class DynatraceClient:
                     params=request_params,
                     timeout=self._timeout,
                 )
-                response.raise_for_status()
+
+                if not response.ok:
+                    raise DynatraceClientError(
+                        f"HTTP {response.status_code}\nURL: {response.url}\nResponse: {response.text}"
+                    )
+
             except requests.RequestException as exc:
                 raise DynatraceClientError(f"Failed to fetch problems: {exc}") from exc
 
@@ -83,16 +92,8 @@ class DynatraceClient:
             display_id=data.get("displayId", ""),
             title=data.get("title", ""),
             status=data.get("status", "").strip().upper(),
-            severity=data.get(
-                "severityLevel",
-                "",
-            )
-            .strip()
-            .upper(),
-            impact_level=data.get(
-                "impactLevel",
-                "",
-            ),
+            severity=data.get("severityLevel", "").strip().upper(),
+            impact_level=data.get("impactLevel", ""),
             entity_type=(data.get("affectedEntities", [{}])[0].get("entityId", {}).get("type", "")),
             management_zones=[mz["name"] for mz in data.get("managementZones", [])],
             start_time=datetime.fromtimestamp(
@@ -107,11 +108,5 @@ class DynatraceClient:
                 if data.get("endTime")
                 else None
             ),
-            affected_entities=[
-                entity["name"]
-                for entity in data.get(
-                    "affectedEntities",
-                    [],
-                )
-            ],
+            affected_entities=[entity["name"] for entity in data.get("affectedEntities", [])],
         )

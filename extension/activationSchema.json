@@ -39,6 +39,17 @@
     "pythonRemote": {
       "type": "object",
       "properties": {
+        "dynatraceUrl": {
+          "displayName": "Dynatrace Tenant URL",
+          "type": "string",
+          "nullable": false
+        },
+        "dynatraceApiToken": {
+          "displayName": "Dynatrace API Token",
+          "type": "string",
+          "nullable": false,
+          "format": "password"
+        },
         "pollingInterval": {
           "displayName": "Polling Interval (seconds)",
           "type": "integer",
@@ -229,6 +240,17 @@
     "pythonLocal": {
       "type": "object",
       "properties": {
+        "dynatraceUrl": {
+          "displayName": "Dynatrace Tenant URL",
+          "type": "string",
+          "nullable": false
+        },
+        "dynatraceApiToken": {
+          "displayName": "Dynatrace API Token",
+          "type": "string",
+          "nullable": false,
+          "format": "password"
+        },
         "pollingInterval": {
           "displayName": "Polling Interval (seconds)",
           "type": "integer",

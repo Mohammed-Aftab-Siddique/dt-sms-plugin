@@ -15,10 +15,10 @@ from dt_sms_plugin.processing.escalation import (
 )
 from dt_sms_plugin.processing.sms_formatter import SmsFormatter
 from dt_sms_plugin.utils.constants import (
-    L1,
-    L2,
+    LEVEL_L1,
+    LEVEL_L2,
     NOTIFICATION_CLOSED,
-    NOTIFICATION_ESCALATED,
+    NOTIFICATION_ESCALATION,
     NOTIFICATION_OPEN,
     STATUS_CLOSED,
 )
@@ -87,11 +87,11 @@ class SmsEngine:
         self._send(
             problem,
             level,
-            NOTIFICATION_ESCALATED,
+            NOTIFICATION_ESCALATION,
         )
 
         cached.escalation_level = level
-        cached.last_notification_type = NOTIFICATION_ESCALATED
+        cached.last_notification_type = NOTIFICATION_ESCALATION
         cached.last_updated = datetime.now(problem.start_time.tzinfo)
 
         self._cache.put(cached)
@@ -144,10 +144,10 @@ class SmsEngine:
     ) -> list[str]:
         escalation = self._settings.escalation
 
-        if level == L1:
+        if level == LEVEL_L1:
             return escalation.l1.recipients
 
-        if level == L2:
+        if level == LEVEL_L2:
             return escalation.l2.recipients
 
         return escalation.l3.recipients

@@ -1,6 +1,12 @@
 from dataclasses import dataclass, field
 
 
+@dataclass(frozen=True)
+class DynatraceSettings:
+    url: str
+    api_token: str
+
+
 @dataclass(slots=True)
 class ManagementZone:
     name: str
@@ -37,6 +43,8 @@ class ExtensionSettings:
     max_problems_per_execution: int | None
 
     management_zones: list[ManagementZone]
+
+    dynatrace: DynatraceSettings
 
     escalation: EscalationSettings
 

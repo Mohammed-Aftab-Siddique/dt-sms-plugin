@@ -21,7 +21,11 @@ def _validate_escalation(settings: ExtensionSettings) -> None:
 
 def _validate_management_zones(settings: ExtensionSettings) -> None:
     if not settings.management_zones:
-        raise ConfigurationError("At least one Management Zone must be configured.")
+        return
+
+    for mz in settings.management_zones:
+        if not mz.name.strip():
+            raise ConfigurationError("Management Zone name cannot be empty.")
 
 
 def _validate_level(

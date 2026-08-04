@@ -4,18 +4,23 @@ import requests
 
 from dt_sms_plugin.models.sms import SmsMessage
 from dt_sms_plugin.utils.exceptions import SmsClientError
+from dt_sms_plugin.utils.logger import log_info
 
 
 class SmsClient:
     def __init__(
         self,
+        logger,
         url: str,
         username: str,
         password: str,
         timeout: int,
+        dry_run: bool,
     ):
         self._url = url
         self._timeout = timeout
+        self._dry_run = dry_run
+        self._logger = logger
 
         self._session = requests.Session()
         self._session.auth = (username, password)
@@ -27,6 +32,13 @@ class SmsClient:
         )
 
     def send(self, sms: SmsMessage) -> None:
+        if self._dry_run:
+            log_info(
+                self._logger,
+                f"DRY RUN\n{sms.message}",
+            )
+            return
+
         payload = self._build_payload(sms)
 
         try:

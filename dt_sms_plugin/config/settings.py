@@ -1,4 +1,5 @@
 from dt_sms_plugin.models.settings import (
+    DynatraceSettings,
     EscalationLevelSettings,
     EscalationSettings,
     ExtensionSettings,
@@ -46,6 +47,10 @@ def load_settings(config: dict) -> ExtensionSettings:
         lookback_window=config["lookbackWindow"],
         max_problems_per_execution=config.get("maxProblemsPerExecution"),
         management_zones=_load_management_zones(config),
+        dynatrace=DynatraceSettings(
+            url=config["dynatraceUrl"].rstrip("/"),
+            api_token=config["dynatraceApiToken"],
+        ),
         escalation=_load_escalation(config),
         sms_api=_load_sms_api(config),
         dry_run=config["dryRun"],

@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 
 from dynatrace_extension import Extension, Status, StatusValue
 
@@ -21,20 +22,24 @@ class ExtensionImpl(Extension):
 
         self.metrics = MetricsPublisher(self)
 
-        self.cache = CacheManager(self.persistence_path)
+        self.cache = CacheManager(Path())
         self.cache.load()
 
+        config = self.activation_config.config
+
+        print(self.activation_config.config.keys())
         self.dt_client = DynatraceClient(
-            tenant_url=self.activation_context.dt_url,
-            api_token=self.activation_context.api_token,
-            timeout=30,
+            tenant_url=config["dynatraceUrl"].rstrip("/"),
+            api_token=config["dynatraceApiToken"],
         )
 
         self.sms_client = SmsClient(
+            logger=self.logger,
             url=self.settings.sms_api.url,
             username=self.settings.sms_api.username,
             password=self.settings.sms_api.password,
             timeout=self.settings.sms_api.timeout,
+            dry_run=self.settings.dry_run,
         )
 
         self.engine = SmsEngine(
@@ -50,6 +55,9 @@ class ExtensionImpl(Extension):
 
         try:
             log_info(self.logger, "Query started.")
+
+            if self.dt_client is None:
+                return
 
             problems = self.dt_client.fetch_problems(
                 lookback_minutes=self.settings.lookback_window,
