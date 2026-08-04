@@ -1,5 +1,5 @@
 name: custom:dt-sms-plugin
-version: 0.0.1
+version: 1.0.0-beta.1
 minDynatraceVersion: "1.285"
 author:
   name: "Mohammed Aftab Siddique"

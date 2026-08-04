@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import requests
 
 from dt_sms_plugin.models.sms import SmsMessage
@@ -21,12 +23,13 @@ class SmsClient:
         self._timeout = timeout
         self._dry_run = dry_run
         self._logger = logger
+        self._username = username
+        self._password = password
 
         self._session = requests.Session()
-        self._session.auth = (username, password)
         self._session.headers.update(
             {
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
                 "Accept": "application/json",
             }
         )
@@ -39,29 +42,38 @@ class SmsClient:
             )
             return
 
-        payload = self._build_payload(sms)
-
         try:
-            response = self._session.post(
-                self._url,
-                json=payload,
-                timeout=self._timeout,
-            )
-            response.raise_for_status()
+            for recipient in sms.recipients:
+                payload = self._build_payload(sms, recipient)
+
+                response = self._session.post(
+                    self._url,
+                    data=payload,
+                    timeout=self._timeout,
+                )
+                response.raise_for_status()
 
         except requests.RequestException as exc:
             raise SmsClientError(f"Failed to send SMS: {exc}") from exc
 
-    @staticmethod
-    def _build_payload(sms: SmsMessage) -> dict:
-        """
-        Temporary payload.
+    def _build_payload(self, sms: SmsMessage, recipient: str) -> dict:
+        auth = {
+            "user": self._username,
+            "password": self._password,
+            "appName": "Ecamptest",
+        }
 
-        Replace this once the SMS API contract is finalized.
-        """
+        json_string = {
+            "campaign": "Dynatrace",
+            "dynParam": [
+                sms.message,
+                "",
+                "",
+                recipient,
+            ],
+        }
+
         return {
-            "recipients": sms.recipients,
-            "message": sms.message,
-            "problemId": sms.problem_id,
-            "notificationType": sms.notification_type,
+            "auth": json.dumps(auth, separators=(",", ":")),
+            "jsonString": json.dumps(json_string, separators=(",", ":")),
         }
