@@ -32,8 +32,8 @@ class ExtensionImpl(Extension):
             tenant_url=config["dynatraceUrl"].rstrip("/"),
             api_token=config["dynatraceApiToken"],
         )
-        
-        #debug
+
+        # debug
         self.dt_client = None
 
         self.sms_client = SmsClient(

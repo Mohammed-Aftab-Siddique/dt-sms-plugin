@@ -1,4 +1,35 @@
 {
+  "enums": {
+    "severity": {
+      "type": "enum",
+      "items": [
+        {
+          "value": "CUSTOM",
+          "displayName": "CUSTOM"
+        },
+        {
+          "value": "INFO",
+          "displayName": "INFO"
+        },
+        {
+          "value": "ERROR",
+          "displayName": "ERROR"
+        },
+        {
+          "value": "SLOWDOWN",
+          "displayName": "SLOWDOWN"
+        },
+        {
+          "value": "AVAILABILITY",
+          "displayName": "AVAILABILITY"
+        },
+        {
+          "value": "MONITORING_UNAVAILABLE",
+          "displayName": "MONITORING_UNAVAILABLE"
+        }
+      ]
+    }
+  },
   "types": {
     "managementZone": {
       "type": "object",
@@ -7,7 +38,7 @@
         "name": {
           "displayName": "Management Zone",
           "type": "text",
-          "nullable": false,
+          "nullable": true,
           "constraints": [
             {
               "type": "LENGTH",
@@ -25,7 +56,7 @@
         "number": {
           "displayName": "Phone Number",
           "type": "text",
-          "nullable": false,
+          "nullable": true,
           "constraints": [
             {
               "type": "LENGTH",
@@ -41,13 +72,13 @@
       "properties": {
         "dynatraceUrl": {
           "displayName": "Dynatrace Tenant URL",
-          "type": "string",
-          "nullable": false
+          "type": "text",
+          "nullable": true
         },
         "dynatraceApiToken": {
           "displayName": "Dynatrace API Token",
-          "type": "string",
-          "nullable": false,
+          "type": "secret",
+          "nullable": true,
           "format": "password"
         },
         "pollingInterval": {
@@ -79,19 +110,20 @@
         "maxProblemsPerExecution": {
           "displayName": "Maximum Problems Per Execution",
           "type": "integer",
-          "nullable": true,
+          "nullable": false,
           "constraints": [
             {
               "type": "RANGE",
               "minimum": 1,
               "maximum": 1000000
             }
-          ]
+          ],
+          "default": 100
         },
         "managementZones": {
           "displayName": "Management Zones",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "minItems": 1,
           "items": {
             "type": {
@@ -105,7 +137,7 @@
         "l1Recipients": {
           "displayName": "L1 Recipients",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "minItems": 1,
           "items": {
             "type": {
@@ -119,23 +151,17 @@
         "l1Severities": {
           "displayName": "L1 Severities",
           "type": "set",
-          "nullable": false,
+          "nullable": true,
           "items": {
-            "type": "enum",
-            "enum": [
-              "CUSTOM",
-              "INFO",
-              "ERROR",
-              "SLOWDOWN",
-              "AVAILABILITY",
-              "MONITORING_UNAVAILABLE"
-            ]
+            "type": {
+              "$ref": "#/enums/severity"
+            }
           }
         },
         "l2Recipients": {
           "displayName": "L2 Recipients",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -148,17 +174,11 @@
         "l2Severities": {
           "displayName": "L2 Severities",
           "type": "set",
-          "nullable": false,
+          "nullable": true,
           "items": {
-            "type": "enum",
-            "enum": [
-              "CUSTOM",
-              "INFO",
-              "ERROR",
-              "SLOWDOWN",
-              "AVAILABILITY",
-              "MONITORING_UNAVAILABLE"
-            ]
+            "type": {
+              "$ref": "#/enums/severity"
+            }
           }
         },
         "l2AfterMinutes": {
@@ -170,7 +190,7 @@
         "l3Recipients": {
           "displayName": "L3 Recipients",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -183,17 +203,11 @@
         "l3Severities": {
           "displayName": "L3 Severities",
           "type": "set",
-          "nullable": false,
+          "nullable": true,
           "items": {
-            "type": "enum",
-            "enum": [
-              "CUSTOM",
-              "INFO",
-              "ERROR",
-              "SLOWDOWN",
-              "AVAILABILITY",
-              "MONITORING_UNAVAILABLE"
-            ]
+            "type": {
+              "$ref": "#/enums/severity"
+            }
           }
         },
         "l3AfterMinutes": {
@@ -205,17 +219,17 @@
         "smsApiUrl": {
           "displayName": "SMS API URL",
           "type": "text",
-          "nullable": false
+          "nullable": true
         },
         "smsApiUsername": {
           "displayName": "SMS API Username",
           "type": "text",
-          "nullable": false
+          "nullable": true
         },
         "smsApiPassword": {
           "displayName": "SMS API Password",
           "type": "secret",
-          "nullable": false
+          "nullable": true
         },
         "smsApiTimeout": {
           "displayName": "SMS API Timeout (seconds)",
@@ -242,13 +256,13 @@
       "properties": {
         "dynatraceUrl": {
           "displayName": "Dynatrace Tenant URL",
-          "type": "string",
-          "nullable": false
+          "type": "text",
+          "nullable": true
         },
         "dynatraceApiToken": {
           "displayName": "Dynatrace API Token",
-          "type": "string",
-          "nullable": false,
+          "type": "text",
+          "nullable": true,
           "format": "password"
         },
         "pollingInterval": {
@@ -292,7 +306,7 @@
         "managementZones": {
           "displayName": "Management Zones",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "minItems": 1,
           "items": {
             "type": {
@@ -306,7 +320,7 @@
         "l1Recipients": {
           "displayName": "L1 Recipients",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "minItems": 1,
           "items": {
             "type": {
@@ -320,23 +334,17 @@
         "l1Severities": {
           "displayName": "L1 Severities",
           "type": "set",
-          "nullable": false,
+          "nullable": true,
           "items": {
-            "type": "enum",
-            "enum": [
-              "CUSTOM",
-              "INFO",
-              "ERROR",
-              "SLOWDOWN",
-              "AVAILABILITY",
-              "MONITORING_UNAVAILABLE"
-            ]
+            "type": {
+              "$ref": "#/enums/severity"
+            }
           }
         },
         "l2Recipients": {
           "displayName": "L2 Recipients",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -349,17 +357,11 @@
         "l2Severities": {
           "displayName": "L2 Severities",
           "type": "set",
-          "nullable": false,
+          "nullable": true,
           "items": {
-            "type": "enum",
-            "enum": [
-              "CUSTOM",
-              "INFO",
-              "ERROR",
-              "SLOWDOWN",
-              "AVAILABILITY",
-              "MONITORING_UNAVAILABLE"
-            ]
+            "type": {
+              "$ref": "#/enums/severity"
+            }
           }
         },
         "l2AfterMinutes": {
@@ -371,7 +373,7 @@
         "l3Recipients": {
           "displayName": "L3 Recipients",
           "type": "list",
-          "nullable": false,
+          "nullable": true,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -384,17 +386,11 @@
         "l3Severities": {
           "displayName": "L3 Severities",
           "type": "set",
-          "nullable": false,
+          "nullable": true,
           "items": {
-            "type": "enum",
-            "enum": [
-              "CUSTOM",
-              "INFO",
-              "ERROR",
-              "SLOWDOWN",
-              "AVAILABILITY",
-              "MONITORING_UNAVAILABLE"
-            ]
+            "type": {
+              "$ref": "#/enums/severity"
+            }
           }
         },
         "l3AfterMinutes": {
@@ -406,17 +402,17 @@
         "smsApiUrl": {
           "displayName": "SMS API URL",
           "type": "text",
-          "nullable": false
+          "nullable": true
         },
         "smsApiUsername": {
           "displayName": "SMS API Username",
           "type": "text",
-          "nullable": false
+          "nullable": true
         },
         "smsApiPassword": {
           "displayName": "SMS API Password",
           "type": "secret",
-          "nullable": false
+          "nullable": true
         },
         "smsApiTimeout": {
           "displayName": "SMS API Timeout (seconds)",
