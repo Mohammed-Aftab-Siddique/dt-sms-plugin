@@ -23,8 +23,8 @@ setup(
     description="Dynatrace SMS Notification Extension",
     author="Mohammed Aftab Siddique",
     packages=find_packages(),
-    python_requires=">=3.14",
+    python_requires=">=3.10",
     include_package_data=True,
-    install_requires=["dt-extensions-sdk"],
+    install_requires=["dt-extensions-sdk", "requests"],
     extras_require={"dev": ["dt-extensions-sdk[cli]"]},
 )

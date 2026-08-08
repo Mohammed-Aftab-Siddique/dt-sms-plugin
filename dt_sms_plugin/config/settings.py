@@ -9,7 +9,9 @@ from dt_sms_plugin.models.settings import (
 
 
 def _load_management_zones(config: dict) -> list[ManagementZone]:
-    return [ManagementZone(name=mz["name"]) for mz in config.get("managementZones", [])]
+    management_zones = config.get("managementZones", [])
+
+    return [ManagementZone(name=mz["name"]) for mz in management_zones if mz.get("name", "").strip()]
 
 
 def _load_escalation_level(
