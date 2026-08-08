@@ -112,9 +112,9 @@
     "status": "OPEN"
   },
   "-2003142939878304725_1786171860000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123535+00:00",
+    "last_updated": "2026-08-08T10:59:11.499379+00:00",
     "problem_id": "-2003142939878304725_1786171860000V2",
     "start_time": "2026-08-08T06:56:00+00:00",
     "status": "OPEN"
@@ -240,17 +240,17 @@
     "status": "OPEN"
   },
   "-4354417846392975997_1786026000000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123836+00:00",
+    "last_updated": "2026-08-08T10:59:11.499635+00:00",
     "problem_id": "-4354417846392975997_1786026000000V2",
     "start_time": "2026-08-06T14:25:00+00:00",
     "status": "OPEN"
   },
   "-4365988574141865094_1786007520000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.124149+00:00",
+    "last_updated": "2026-08-08T10:59:11.499899+00:00",
     "problem_id": "-4365988574141865094_1786007520000V2",
     "start_time": "2026-08-06T09:12:00+00:00",
     "status": "OPEN"
@@ -344,9 +344,9 @@
     "status": "OPEN"
   },
   "-528250308299757739_1786179060000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123381+00:00",
+    "last_updated": "2026-08-08T10:59:11.499221+00:00",
     "problem_id": "-528250308299757739_1786179060000V2",
     "start_time": "2026-08-08T08:51:00+00:00",
     "status": "OPEN"
@@ -376,9 +376,9 @@
     "status": "OPEN"
   },
   "-540545846178188499_1786182960000V2": {
-    "escalation_level": "L1",
-    "last_notification_type": "OPEN",
-    "last_updated": "2026-08-08T10:14:57.123289+00:00",
+    "escalation_level": "L3",
+    "last_notification_type": "ESCALATION",
+    "last_updated": "2026-08-08T11:01:11.024979+00:00",
     "problem_id": "-540545846178188499_1786182960000V2",
     "start_time": "2026-08-08T10:01:00+00:00",
     "status": "OPEN"
@@ -592,9 +592,9 @@
     "status": "OPEN"
   },
   "-8323672360184281816_1786007820000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123959+00:00",
+    "last_updated": "2026-08-08T10:59:11.499692+00:00",
     "problem_id": "-8323672360184281816_1786007820000V2",
     "start_time": "2026-08-06T09:17:00+00:00",
     "status": "OPEN"
@@ -624,9 +624,9 @@
     "status": "OPEN"
   },
   "-8450159484906335559_1786154135624V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123655+00:00",
+    "last_updated": "2026-08-08T10:59:11.499529+00:00",
     "problem_id": "-8450159484906335559_1786154135624V2",
     "start_time": "2026-08-08T01:55:35.624000+00:00",
     "status": "OPEN"
@@ -720,9 +720,9 @@
     "status": "OPEN"
   },
   "1872782236890030401_1786007760000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.124086+00:00",
+    "last_updated": "2026-08-08T10:59:11.499834+00:00",
     "problem_id": "1872782236890030401_1786007760000V2",
     "start_time": "2026-08-06T09:16:00+00:00",
     "status": "OPEN"
@@ -968,9 +968,9 @@
     "status": "OPEN"
   },
   "4986580637756023542_1786007820000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.124023+00:00",
+    "last_updated": "2026-08-08T10:59:11.499745+00:00",
     "problem_id": "4986580637756023542_1786007820000V2",
     "start_time": "2026-08-06T09:17:00+00:00",
     "status": "OPEN"
@@ -992,9 +992,9 @@
     "status": "OPEN"
   },
   "5910264335675711489_1786172110056V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123598+00:00",
+    "last_updated": "2026-08-08T10:59:11.499465+00:00",
     "problem_id": "5910264335675711489_1786172110056V2",
     "start_time": "2026-08-08T06:55:10.056000+00:00",
     "status": "OPEN"
@@ -1112,9 +1112,9 @@
     "status": "OPEN"
   },
   "7536418892773951773_1786052100000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123782+00:00",
+    "last_updated": "2026-08-08T10:59:11.499584+00:00",
     "problem_id": "7536418892773951773_1786052100000V2",
     "start_time": "2026-08-06T21:35:00+00:00",
     "status": "OPEN"
@@ -1240,9 +1240,9 @@
     "status": "OPEN"
   },
   "9080208774811517816_1786177380000V2": {
-    "escalation_level": "L2",
+    "escalation_level": "L3",
     "last_notification_type": "ESCALATION",
-    "last_updated": "2026-08-08T10:14:57.123470+00:00",
+    "last_updated": "2026-08-08T10:59:11.499305+00:00",
     "problem_id": "9080208774811517816_1786177380000V2",
     "start_time": "2026-08-08T08:28:00+00:00",
     "status": "OPEN"
