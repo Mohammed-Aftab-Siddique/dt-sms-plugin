@@ -18,6 +18,9 @@ class ExtensionImpl(Extension):
         try:
             log_info(self.logger, "Initializing DT SMS Plugin...")
 
+            print("CONFIG TYPE:", type(self.activation_config.config))
+            print("CONFIG KEYS:", list(self.activation_config.config.keys()))
+
             print("STEP 1")
             self.settings = load_settings(self.activation_config)
 
@@ -39,14 +42,11 @@ class ExtensionImpl(Extension):
 
             print("STEP 6")
             self.dt_client = DynatraceClient(
-                tenant_url=config["dynatraceUrl"].rstrip("/"),
-                api_token=config["dynatraceApiToken"],
+                tenant_url=self.settings.dynatrace.url,
+                api_token=self.settings.dynatrace.api_token,
             )
 
             print("STEP 7")
-            self.dt_client = None
-
-            print("STEP 8")
             self.sms_client = SmsClient(
                 logger=self.logger,
                 url=self.settings.sms_api.url,
@@ -56,14 +56,14 @@ class ExtensionImpl(Extension):
                 dry_run=self.settings.dry_run,
             )
 
-            print("STEP 9")
+            print("STEP 8")
             self.engine = SmsEngine(
                 settings=self.settings,
                 cache=self.cache,
                 sms_client=self.sms_client,
             )
 
-            print("STEP 10")
+            print("STEP 9")
             log_info(self.logger, "Initialization completed.")
 
         except Exception:
@@ -76,8 +76,8 @@ class ExtensionImpl(Extension):
         try:
             log_info(self.logger, "Query started.")
 
-            if self.dt_client is None:
-                return
+            # if self.dt_client is None:
+            #     return
 
             problems = self.dt_client.fetch_problems(
                 lookback_minutes=self.settings.lookback_window,
