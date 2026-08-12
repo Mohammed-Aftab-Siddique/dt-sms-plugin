@@ -27,10 +27,15 @@ class SmsClient:
         self._password = password
 
         self._session = requests.Session()
+
+        self._session.cookies.set(
+            "JSESSIONID",
+            "0000DKe88xj7HRtca3USPfkgYSo:-1",
+        )
+
         self._session.headers.update(
             {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "Accept": "application/json",
             }
         )
 

@@ -17,7 +17,7 @@ class ExtensionImpl(Extension):
     def initialize(self) -> None:
         try:
             log_info(self.logger, "Initializing DT SMS Plugin...")
-            
+
             self.settings = load_settings(self.activation_config)
 
             validate_settings(self.settings)
