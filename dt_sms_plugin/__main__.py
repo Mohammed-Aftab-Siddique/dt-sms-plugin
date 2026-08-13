@@ -39,6 +39,7 @@ class ExtensionImpl(Extension):
                 password=self.settings.sms_api.password,
                 timeout=self.settings.sms_api.timeout,
                 dry_run=self.settings.dry_run,
+                payload_logging=self.settings.payload_logging,
             )
 
             self.engine = SmsEngine(

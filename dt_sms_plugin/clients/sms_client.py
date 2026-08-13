@@ -18,10 +18,12 @@ class SmsClient:
         password: str,
         timeout: int,
         dry_run: bool,
+        payload_logging: bool,
     ):
         self._url = url
         self._timeout = timeout
         self._dry_run = dry_run
+        self._payload_logging = payload_logging
         self._logger = logger
         self._username = username
         self._password = password
@@ -51,11 +53,24 @@ class SmsClient:
             for recipient in sms.recipients:
                 payload = self._build_payload(sms, recipient)
 
+                if self._payload_logging:
+                    log_info(
+                        self._logger,
+                        f"SMS payload: {self._sanitize_payload(payload)}",
+                    )
+
                 response = self._session.post(
                     self._url,
                     data=payload,
                     timeout=self._timeout,
                 )
+
+                if self._payload_logging:
+                    log_info(
+                        self._logger,
+                        (f"SMS API response: status={response.status_code}, body={response.text}"),
+                    )
+
                 response.raise_for_status()
 
         except requests.RequestException as exc:
@@ -82,3 +97,18 @@ class SmsClient:
             "auth": json.dumps(auth, separators=(",", ":")),
             "jsonString": json.dumps(json_string, separators=(",", ":")),
         }
+
+    def _sanitize_payload(self, payload: dict) -> dict:
+        sanitized = payload.copy()
+
+        try:
+            auth = json.loads(sanitized["auth"])
+            auth["password"] = "***"
+            sanitized["auth"] = json.dumps(
+                auth,
+                separators=(",", ":"),
+            )
+        except (KeyError, json.JSONDecodeError):
+            pass
+
+        return sanitized
