@@ -1,4 +1,4 @@
-from datetime import UTC
+from zoneinfo import ZoneInfo
 
 from dt_sms_plugin.models.problem import Problem
 from dt_sms_plugin.utils.constants import (
@@ -19,7 +19,7 @@ class SmsFormatter:
 
         event_time = problem.end_time if notification_type == NOTIFICATION_CLOSED else problem.start_time
 
-        time_text = event_time.astimezone(UTC).strftime("%d-%b-%Y %H:%M:%S UTC")
+        time_text = event_time.astimezone(ZoneInfo("Asia/Kolkata")).strftime("%d-%b-%Y %H:%M:%S IST")
 
         return (
             f"Application: {entity_name}\n"

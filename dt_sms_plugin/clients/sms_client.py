@@ -84,7 +84,7 @@ class SmsClient:
         }
 
         json_string = {
-            "campaign": "Dynatrace",
+            "campaign": "AppDynamics",
             "dynParam": [
                 sms.message,
                 "",
