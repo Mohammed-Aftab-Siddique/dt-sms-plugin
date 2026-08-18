@@ -43,7 +43,7 @@
           "constraints": [
             {
               "type": "LENGTH",
-              "minLength": 0,
+              "minLength": 1,
               "maxLength": 50
             }
           ]
@@ -72,22 +72,11 @@
     "pythonRemote": {
       "type": "object",
       "properties": {
-        "dynatraceUrl": {
-          "displayName": "Dynatrace Tenant URL",
-          "type": "text",
-          "nullable": true
-        },
-        "dynatraceApiToken": {
-          "displayName": "Dynatrace API Token",
-          "type": "secret",
-          "nullable": true,
-          "format": "password"
-        },
         "pollingInterval": {
           "displayName": "Polling Interval (seconds)",
           "type": "integer",
           "nullable": false,
-          "default": 300,
+          "default": 60,
           "constraints": [
             {
               "type": "RANGE",
@@ -126,7 +115,7 @@
           "displayName": "Management Zones",
           "type": "list",
           "nullable": true,
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "type": {
               "$ref": "#/types/managementZone"
@@ -139,7 +128,7 @@
         "l1Recipients": {
           "displayName": "L1 Recipients",
           "type": "list",
-          "nullable": true,
+          "nullable": false,
           "minItems": 1,
           "items": {
             "type": {
@@ -163,7 +152,7 @@
         "l2Recipients": {
           "displayName": "L2 Recipients",
           "type": "list",
-          "nullable": true,
+          "nullable": false,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -192,7 +181,7 @@
         "l3Recipients": {
           "displayName": "L3 Recipients",
           "type": "list",
-          "nullable": true,
+          "nullable": false,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -221,23 +210,26 @@
         "smsApiUrl": {
           "displayName": "SMS API URL",
           "type": "text",
-          "nullable": true
+          "nullable": false,
+          "default": "https://api.smsprovider.com/send"
         },
         "smsApiUsername": {
           "displayName": "SMS API Username",
           "type": "text",
-          "nullable": true
+          "nullable": false,
+          "default": "your_username"
         },
         "smsApiPassword": {
           "displayName": "SMS API Password",
           "type": "secret",
-          "nullable": true
+          "nullable": false,
+          "default": "your_password"
         },
         "smsApiTimeout": {
           "displayName": "SMS API Timeout (seconds)",
           "type": "integer",
           "nullable": false,
-          "default": 30
+          "default": 5
         },
         "dryRun": {
           "displayName": "Dry Run",
@@ -256,22 +248,11 @@
     "pythonLocal": {
       "type": "object",
       "properties": {
-        "dynatraceUrl": {
-          "displayName": "Dynatrace Tenant URL",
-          "type": "text",
-          "nullable": true
-        },
-        "dynatraceApiToken": {
-          "displayName": "Dynatrace API Token",
-          "type": "text",
-          "nullable": true,
-          "format": "password"
-        },
         "pollingInterval": {
           "displayName": "Polling Interval (seconds)",
           "type": "integer",
           "nullable": false,
-          "default": 300,
+          "default": 60,
           "constraints": [
             {
               "type": "RANGE",
@@ -296,20 +277,21 @@
         "maxProblemsPerExecution": {
           "displayName": "Maximum Problems Per Execution",
           "type": "integer",
-          "nullable": true,
+          "nullable": false,
           "constraints": [
             {
               "type": "RANGE",
               "minimum": 1,
               "maximum": 1000000
             }
-          ]
+          ],
+          "default": 100
         },
         "managementZones": {
           "displayName": "Management Zones",
           "type": "list",
           "nullable": true,
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "type": {
               "$ref": "#/types/managementZone"
@@ -322,7 +304,7 @@
         "l1Recipients": {
           "displayName": "L1 Recipients",
           "type": "list",
-          "nullable": true,
+          "nullable": false,
           "minItems": 1,
           "items": {
             "type": {
@@ -346,7 +328,7 @@
         "l2Recipients": {
           "displayName": "L2 Recipients",
           "type": "list",
-          "nullable": true,
+          "nullable": false,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -375,7 +357,7 @@
         "l3Recipients": {
           "displayName": "L3 Recipients",
           "type": "list",
-          "nullable": true,
+          "nullable": false,
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -404,23 +386,26 @@
         "smsApiUrl": {
           "displayName": "SMS API URL",
           "type": "text",
-          "nullable": true
+          "nullable": false,
+          "default": "https://api.smsprovider.com/send"
         },
         "smsApiUsername": {
           "displayName": "SMS API Username",
           "type": "text",
-          "nullable": true
+          "nullable": false,
+          "default": "your_username"
         },
         "smsApiPassword": {
           "displayName": "SMS API Password",
           "type": "secret",
-          "nullable": true
+          "nullable": false,
+          "default": "your_password"
         },
         "smsApiTimeout": {
           "displayName": "SMS API Timeout (seconds)",
           "type": "integer",
           "nullable": false,
-          "default": 30
+          "default": 5
         },
         "dryRun": {
           "displayName": "Dry Run",
