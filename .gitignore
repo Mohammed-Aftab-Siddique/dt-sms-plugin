@@ -191,3 +191,6 @@ activation.json
 
 # JetBrains IDE
 .idea/
+
+# Cache
+problem_cache.json
