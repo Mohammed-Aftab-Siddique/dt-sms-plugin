@@ -24,26 +24,26 @@ If no Management Zone is configured, the plugin treats the configuration as appl
 
 ```text
                     ┌──────────────────────────┐
-                    │       Dynatrace           │
-                    │     Problem API           │
+                    │       Dynatrace          │
+                    │     Problem API          │
                     └────────────┬─────────────┘
                                  │
                                  │ Fetch Problems
                                  ▼
                     ┌──────────────────────────┐
-                    │   DynatraceClient         │
-                    │                           │
-                    │ Problem retrieval &       │
-                    │ Management Zone filtering │
+                    │   DynatraceClient        │
+                    │                          │
+                    │ Problem retrieval &      │
+                    │ Management Zone filtering│
                     └────────────┬─────────────┘
                                  │
                                  ▼
                     ┌──────────────────────────┐
-                    │       SmsEngine           │
-                    │                           │
-                    │ Problem processing        │
-                    │ Escalation handling       │
-                    │ Notification handling     │
+                    │       SmsEngine          │
+                    │                          │
+                    │ Problem processing       │
+                    │ Escalation handling      │
+                    │ Notification handling    │
                     └───────┬───────────┬──────┘
                             │           │
                  ┌──────────┘           └──────────┐
@@ -52,7 +52,7 @@ If no Management Zone is configured, the plugin treats the configuration as appl
        │  CacheManager    │              │   SmsClient      │
        │                  │              │                  │
        │ Problem state    │              │ SMS API          │
-       │ Escalation state │              │ communication     │
+       │ Escalation state │              │ communication    │
        └────────┬─────────┘              └────────┬─────────┘
                 │                                 │
                 ▼                                 ▼
