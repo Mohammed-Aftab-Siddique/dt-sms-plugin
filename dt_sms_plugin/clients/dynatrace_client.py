@@ -142,7 +142,12 @@ class DynatraceClient:
             severity=data.get("severityLevel", "").strip().upper(),
             impact_level=data.get("impactLevel", ""),
             entity_type=primary_entity.get("entityId", {}).get("type", "").strip().upper(),
-            management_zones=[mz["name"] for mz in data.get("managementZones", [])],
+            management_zones=[
+                name
+                for management_zone in (data.get("managementZones") or [])
+                if isinstance(management_zone, dict)
+                and (name := str(management_zone.get("name", "")).strip())
+            ],
             start_time=datetime.fromtimestamp(
                 data["startTime"] / 1000,
                 tz=UTC,

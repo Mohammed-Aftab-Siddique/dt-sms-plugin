@@ -157,6 +157,24 @@ class SyntheticTests(unittest.TestCase):
         self.assertEqual(parsed.monitor_name, "FileNet DocStore Flow")
         self.assertEqual(parsed.synthetic_step_name, "Error on Login Page - Click on Username")
 
+    def test_dynatrace_client_ignores_management_zone_entries_without_names(self):
+        payload = {
+            "problemId": "P-1",
+            "status": "OPEN",
+            "severityLevel": "AVAILABILITY",
+            "startTime": 1_700_000_000_000,
+            "affectedEntities": [{"entityId": {"type": "HOST"}, "name": "Host"}],
+            "managementZones": [
+                {"id": "123456789"},
+                {"name": "  FileNet  "},
+                {},
+            ],
+        }
+
+        parsed = DynatraceClient._to_problem(object.__new__(DynatraceClient), payload)
+
+        self.assertEqual(parsed.management_zones, ["FileNet"])
+
     def test_problem_list_fetches_details_only_for_synthetic_problems(self):
         standard_data = {
             "problemId": "STANDARD-1",
