@@ -29,6 +29,13 @@ class EscalationSettings:
 
 
 @dataclass(slots=True)
+class SyntheticSettings:
+    enabled: bool
+    use_same_escalation: bool
+    escalation: EscalationSettings
+
+
+@dataclass(slots=True)
 class SmsApiSettings:
     url: str
     username: str
@@ -47,6 +54,7 @@ class ExtensionSettings:
     dynatrace: DynatraceSettings
 
     escalation: EscalationSettings
+    synthetic: SyntheticSettings
 
     sms_api: SmsApiSettings
 

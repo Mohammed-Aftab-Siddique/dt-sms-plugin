@@ -140,6 +140,11 @@
           "displayName": "L1 Recipients",
           "type": "list",
           "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
           "minItems": 1,
           "items": {
             "type": {
@@ -164,6 +169,11 @@
           "displayName": "L2 Recipients",
           "type": "list",
           "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -193,6 +203,11 @@
           "displayName": "L3 Recipients",
           "type": "list",
           "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -217,6 +232,167 @@
           "type": "integer",
           "nullable": false,
           "default": 60
+        },
+        "syntheticEnabled": {
+          "displayName": "Enable Synthetic Problem SMS",
+          "type": "boolean",
+          "nullable": false,
+          "default": false
+        },
+        "syntheticUseSameEscalation": {
+          "displayName": "Use Same Escalation Settings",
+          "type": "boolean",
+          "nullable": false,
+          "default": true,
+          "precondition": {
+            "type": "EQUALS",
+            "property": "syntheticEnabled",
+            "expectedValue": true
+          }
+        },
+        "syntheticL1Recipients": {
+          "displayName": "Synthetic L1 Recipients",
+          "type": "list",
+          "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          },
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL2Recipients": {
+          "displayName": "Synthetic L2 Recipients",
+          "type": "list",
+          "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          },
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL3Recipients": {
+          "displayName": "Synthetic L3 Recipients",
+          "type": "list",
+          "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          },
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL2AfterMinutes": {
+          "displayName": "Synthetic L2 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 30,
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL3AfterMinutes": {
+          "displayName": "Synthetic L3 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 60,
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
         },
         "smsApiUrl": {
           "displayName": "SMS API URL",
@@ -327,6 +503,11 @@
           "displayName": "L1 Recipients",
           "type": "list",
           "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
           "minItems": 1,
           "items": {
             "type": {
@@ -351,6 +532,11 @@
           "displayName": "L2 Recipients",
           "type": "list",
           "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -380,6 +566,11 @@
           "displayName": "L3 Recipients",
           "type": "list",
           "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
           "items": {
             "type": {
               "$ref": "#/types/recipient"
@@ -404,6 +595,167 @@
           "type": "integer",
           "nullable": false,
           "default": 60
+        },
+        "syntheticEnabled": {
+          "displayName": "Enable Synthetic Problem SMS",
+          "type": "boolean",
+          "nullable": false,
+          "default": false
+        },
+        "syntheticUseSameEscalation": {
+          "displayName": "Use Same Escalation Settings",
+          "type": "boolean",
+          "nullable": false,
+          "default": true,
+          "precondition": {
+            "type": "EQUALS",
+            "property": "syntheticEnabled",
+            "expectedValue": true
+          }
+        },
+        "syntheticL1Recipients": {
+          "displayName": "Synthetic L1 Recipients",
+          "type": "list",
+          "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          },
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL2Recipients": {
+          "displayName": "Synthetic L2 Recipients",
+          "type": "list",
+          "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          },
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL3Recipients": {
+          "displayName": "Synthetic L3 Recipients",
+          "type": "list",
+          "nullable": false,
+          "default": [
+            {
+              "number": "9999999999"
+            }
+          ],
+          "minItems": 1,
+          "items": {
+            "type": {
+              "$ref": "#/types/recipient"
+            }
+          },
+          "metaData": {
+            "addItemButton": "Add Recipient"
+          },
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL2AfterMinutes": {
+          "displayName": "Synthetic L2 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 30,
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
+        },
+        "syntheticL3AfterMinutes": {
+          "displayName": "Synthetic L3 Escalation Delay (minutes)",
+          "type": "integer",
+          "nullable": false,
+          "default": 60,
+          "precondition": {
+            "type": "AND",
+            "preconditions": [
+              {
+                "type": "EQUALS",
+                "property": "syntheticEnabled",
+                "expectedValue": true
+              },
+              {
+                "type": "EQUALS",
+                "property": "syntheticUseSameEscalation",
+                "expectedValue": false
+              }
+            ]
+          }
         },
         "smsApiUrl": {
           "displayName": "SMS API URL",

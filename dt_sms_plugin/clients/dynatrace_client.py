@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 import requests
 
 from dt_sms_plugin.models.problem import Problem
+from dt_sms_plugin.utils.constants import SYNTHETIC_ENTITY_TYPES, SYNTHETIC_STEP_NAME_KEY
 from dt_sms_plugin.utils.exceptions import DynatraceClientError
 
 
@@ -36,6 +37,7 @@ class DynatraceClient:
             "pageSize": 100,
             "from": f"-{lookback_minutes}m",
             "to": "now",
+            "fields": "evidenceDetails",
         }
 
         selectors = ['status("open")']
@@ -52,7 +54,9 @@ class DynatraceClient:
         next_page_key = None
 
         while True:
-            request_params = {"nextPageKey": next_page_key} if next_page_key else params
+            request_params = (
+                {"nextPageKey": next_page_key, "fields": "evidenceDetails"} if next_page_key else params
+            )
 
             try:
                 response = self._session.get(
@@ -87,6 +91,17 @@ class DynatraceClient:
         self,
         data: dict,
     ) -> Problem:
+        affected_entities = data.get("affectedEntities", [])
+        synthetic_entity = next(
+            (
+                entity
+                for entity in affected_entities
+                if entity.get("entityId", {}).get("type", "").strip().upper() in SYNTHETIC_ENTITY_TYPES
+            ),
+            None,
+        )
+        primary_entity = synthetic_entity or (affected_entities[0] if affected_entities else {})
+
         return Problem(
             problem_id=data["problemId"],
             display_id=data.get("displayId", ""),
@@ -94,7 +109,7 @@ class DynatraceClient:
             status=data.get("status", "").strip().upper(),
             severity=data.get("severityLevel", "").strip().upper(),
             impact_level=data.get("impactLevel", ""),
-            entity_type=(data.get("affectedEntities", [{}])[0].get("entityId", {}).get("type", "")),
+            entity_type=primary_entity.get("entityId", {}).get("type", "").strip().upper(),
             management_zones=[mz["name"] for mz in data.get("managementZones", [])],
             start_time=datetime.fromtimestamp(
                 data["startTime"] / 1000,
@@ -108,5 +123,18 @@ class DynatraceClient:
                 if data.get("endTime")
                 else None
             ),
-            affected_entities=[entity["name"] for entity in data.get("affectedEntities", [])],
+            affected_entities=[entity.get("name", "") for entity in affected_entities],
+            monitor_name=primary_entity.get("name", "").strip(),
+            synthetic_step_name=self._get_synthetic_step_name(data),
         )
+
+    @staticmethod
+    def _get_synthetic_step_name(data: dict) -> str:
+        details = data.get("evidenceDetails", {}).get("details", [])
+
+        for detail in details:
+            for item in detail.get("data", []):
+                if item.get("key") == SYNTHETIC_STEP_NAME_KEY:
+                    return str(item.get("value", "")).strip()
+
+        return ""

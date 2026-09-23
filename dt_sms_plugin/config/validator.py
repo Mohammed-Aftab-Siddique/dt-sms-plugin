@@ -18,6 +18,27 @@ def _validate_escalation(settings: ExtensionSettings) -> None:
     if settings.escalation.l2_after_minutes >= settings.escalation.l3_after_minutes:
         raise ConfigurationError("L2 escalation delay must be less than L3 escalation delay.")
 
+    if not settings.synthetic.enabled:
+        return
+
+    synthetic = settings.synthetic.escalation
+
+    if synthetic.l2_after_minutes <= 0 or synthetic.l3_after_minutes <= 0:
+        raise ConfigurationError("Synthetic escalation delays must be greater than zero.")
+
+    if synthetic.l2_after_minutes >= synthetic.l3_after_minutes:
+        raise ConfigurationError(
+            "Synthetic L2 escalation delay must be less than synthetic L3 escalation delay."
+        )
+
+    for level_name, level in (
+        ("Synthetic L1", synthetic.l1),
+        ("Synthetic L2", synthetic.l2),
+        ("Synthetic L3", synthetic.l3),
+    ):
+        if not level.recipients:
+            raise ConfigurationError(f"{level_name} must contain at least one recipient.")
+
 
 def _validate_management_zones(settings: ExtensionSettings) -> None:
     if not settings.management_zones:

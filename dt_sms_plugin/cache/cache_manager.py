@@ -11,8 +11,8 @@ from dt_sms_plugin.utils.exceptions import CacheError
 
 
 class CacheManager:
-    def __init__(self, cache_dir: Path):
-        self._cache_file = cache_dir / CACHE_FILE_NAME
+    def __init__(self, cache_dir: Path, cache_file_name: str = CACHE_FILE_NAME):
+        self._cache_file = cache_dir / cache_file_name
         self._cache: dict[str, CacheEntry] = {}
 
     @property

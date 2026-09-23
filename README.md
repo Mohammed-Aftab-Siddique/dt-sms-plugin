@@ -11,8 +11,9 @@ The plugin:
 - Sends SMS notifications for newly detected problems.
 - Supports **L1, L2, and L3 escalation levels**.
 - Escalates notifications based on configurable time thresholds.
+- Optionally handles `SYNTHETIC_TEST` and `HTTP_CHECK` problems with a dedicated payload and delay-only escalation.
 - Sends cumulative notifications when a problem is closed.
-- Maintains a local cache of processed problems to track notification and escalation state.
+- Maintains separate local caches for standard and synthetic problems.
 - Supports **dry-run mode** for testing without sending SMS.
 - Publishes custom metrics for processing time, processed problems, SMS activity, and execution health.
 
@@ -57,6 +58,7 @@ If no Management Zone is configured, the plugin treats the configuration as appl
                 │                                 │
                 ▼                                 ▼
        problem_cache.json                    SMS Gateway
+       synthetic_problem_cache.json
 ```
 
 ### Main Components
@@ -94,6 +96,10 @@ Send SMS
       ▼
 Store problem state in cache
 ```
+
+Synthetic problems always begin at L1 and do not use problem severity. When synthetic handling is disabled,
+`SYNTHETIC_TEST` and `HTTP_CHECK` problems are ignored. When enabled, synthetic problems use either the standard
+recipients and delays or their own dedicated recipients and delays.
 
 For an existing problem:
 
@@ -290,6 +296,21 @@ The configuration validator requires:
 ```text
 L2 delay < L3 delay
 ```
+
+Open notifications include their current escalation level in the status, for example `OPEN L1`. Closed
+notifications contain only `CLOSED`.
+
+#### Synthetic Problems
+
+Synthetic SMS handling is disabled by default. When enabled, problems containing an affected entity of type
+`SYNTHETIC_TEST` or `HTTP_CHECK` use the synthetic payload.
+
+Select **Use Same Escalation Settings** to reuse the standard L1/L2/L3 recipients and L2/L3 delays. Standard
+severity selections are not applied to synthetic problems. If the option is cleared, configure dedicated
+synthetic recipients and delays.
+
+Synthetic payloads use the matching affected entity name as the flow name and the
+`dt.synthetic.step.name` evidence property as the incident name.
 
 #### SMS API
 
@@ -510,11 +531,14 @@ The cache stores the current escalation level, so inspect the cache state when i
 
 ### Cache problems
 
-The plugin uses:
+The plugin uses two cache files:
 
 ```text
 problem_cache.json
+synthetic_problem_cache.json
 ```
+
+The first stores standard problems and the second stores synthetic problems.
 
 to retain problem state between executions.
 

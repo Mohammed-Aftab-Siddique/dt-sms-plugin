@@ -10,6 +10,7 @@ from dt_sms_plugin.config.settings import load_settings
 from dt_sms_plugin.config.validator import validate_settings
 from dt_sms_plugin.metrics.publisher import MetricsPublisher
 from dt_sms_plugin.processing.sms_engine import SmsEngine
+from dt_sms_plugin.utils.constants import NORMAL_CACHE_FILE_NAME, SYNTHETIC_CACHE_FILE_NAME
 from dt_sms_plugin.utils.logger import log_error, log_info
 
 
@@ -24,8 +25,10 @@ class ExtensionImpl(Extension):
 
             self.metrics = MetricsPublisher(self)
 
-            self.cache = CacheManager(Path())
+            self.cache = CacheManager(Path(), NORMAL_CACHE_FILE_NAME)
+            self.synthetic_cache = CacheManager(Path(), SYNTHETIC_CACHE_FILE_NAME)
             self.cache.load()
+            self.synthetic_cache.load()
 
             self.dt_client = DynatraceClient(
                 tenant_url=self.settings.dynatrace.url,
@@ -45,6 +48,7 @@ class ExtensionImpl(Extension):
             self.engine = SmsEngine(
                 settings=self.settings,
                 cache=self.cache,
+                synthetic_cache=self.synthetic_cache,
                 sms_client=self.sms_client,
             )
 

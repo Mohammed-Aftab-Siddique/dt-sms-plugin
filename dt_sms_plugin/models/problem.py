@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from dt_sms_plugin.utils.constants import SYNTHETIC_ENTITY_TYPES
+
 
 @dataclass(slots=True)
 class Problem:
@@ -21,3 +23,10 @@ class Problem:
     end_time: datetime | None
 
     affected_entities: list[str]
+
+    monitor_name: str
+    synthetic_step_name: str
+
+    @property
+    def is_synthetic(self) -> bool:
+        return self.entity_type in SYNTHETIC_ENTITY_TYPES

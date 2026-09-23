@@ -2,7 +2,9 @@
 # Cache
 # =============================================================================
 
-CACHE_FILE_NAME = "problem_cache.json"
+NORMAL_CACHE_FILE_NAME = "problem_cache.json"
+SYNTHETIC_CACHE_FILE_NAME = "synthetic_problem_cache.json"
+CACHE_FILE_NAME = NORMAL_CACHE_FILE_NAME
 CACHE_VERSION = 1
 
 CACHE_KEY_PROBLEMS = "problems"
@@ -42,6 +44,13 @@ ESCALATION_LEVELS = (
     LEVEL_L2,
     LEVEL_L3,
 )
+
+SYNTHETIC_ENTITY_TYPES = (
+    "SYNTHETIC_TEST",
+    "HTTP_CHECK",
+)
+
+SYNTHETIC_STEP_NAME_KEY = "dt.synthetic.step.name"
 
 # =============================================================================
 # Severity Levels
