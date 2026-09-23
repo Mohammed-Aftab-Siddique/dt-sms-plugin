@@ -7,6 +7,7 @@ from pathlib import Path
 from dt_sms_plugin.cache.cache_manager import CacheManager
 from dt_sms_plugin.clients.dynatrace_client import DynatraceClient
 from dt_sms_plugin.config.settings import load_settings
+from dt_sms_plugin.models.cache import CacheEntry
 from dt_sms_plugin.models.problem import Problem
 from dt_sms_plugin.processing.sms_engine import SmsEngine
 from dt_sms_plugin.processing.sms_formatter import SmsFormatter
@@ -55,13 +56,21 @@ def activation_config(**overrides):
     return config
 
 
-def problem(*, entity_type="HOST", status="OPEN", start_time=None, end_time=None):
+def problem(
+    *,
+    problem_id="P-1",
+    entity_type="HOST",
+    status="OPEN",
+    severity="AVAILABILITY",
+    start_time=None,
+    end_time=None,
+):
     return Problem(
-        problem_id="P-1",
-        display_id="P-1",
+        problem_id=problem_id,
+        display_id=problem_id,
         title="Existing incident",
         status=status,
-        severity="AVAILABILITY",
+        severity=severity,
         impact_level="APPLICATION",
         entity_type=entity_type,
         management_zones=["API Response Zone"],
@@ -163,6 +172,47 @@ class SyntheticTests(unittest.TestCase):
         self.assertIn("Status: OPEN L3", sms.messages[0].message)
         self.assertIn("Entity: FileNet DocStore Flow", sms.messages[0].message)
 
+    def test_standard_initial_level_uses_severity(self):
+        scenarios = (
+            ("INFO", "L1", "1111111111"),
+            ("ERROR", "L2", "2222222222"),
+            ("AVAILABILITY", "L3", "3333333333"),
+        )
+
+        for severity, expected_level, expected_recipient in scenarios:
+            with self.subTest(severity=severity):
+                instance, normal_cache, _, sms = self.make_engine(activation_config())
+                standard_problem = problem(problem_id=f"P-{expected_level}", severity=severity)
+
+                instance.process([standard_problem])
+
+                self.assertEqual(
+                    normal_cache.get(standard_problem.problem_id).escalation_level,
+                    expected_level,
+                )
+                self.assertEqual(sms.messages[0].recipients, [expected_recipient])
+                self.assertIn(f"Status: OPEN {expected_level}", sms.messages[0].message)
+
+    def test_standard_delay_escalation_waits_then_reaches_l2_and_l3(self):
+        started = datetime.now(UTC) - timedelta(minutes=5)
+        instance, normal_cache, _, sms = self.make_engine(activation_config())
+        standard_problem = problem(severity="INFO", start_time=started)
+
+        instance.process([standard_problem])
+        instance.process([standard_problem])
+        self.assertEqual(len(sms.messages), 1)
+        self.assertEqual(normal_cache.get("P-1").escalation_level, "L1")
+
+        normal_cache.get("P-1").start_time = datetime.now(UTC) - timedelta(minutes=35)
+        instance.process([standard_problem])
+        self.assertEqual(normal_cache.get("P-1").escalation_level, "L2")
+        self.assertEqual(sms.messages[-1].recipients, ["2222222222"])
+
+        normal_cache.get("P-1").start_time = datetime.now(UTC) - timedelta(minutes=65)
+        instance.process([standard_problem])
+        self.assertEqual(normal_cache.get("P-1").escalation_level, "L3")
+        self.assertEqual(sms.messages[-1].recipients, ["3333333333"])
+
     def test_synthetic_uses_dedicated_settings_and_starts_at_l1(self):
         config = activation_config(syntheticEnabled=True, syntheticUseSameEscalation=False)
         instance, normal_cache, synthetic_cache, sms = self.make_engine(config)
@@ -176,6 +226,48 @@ class SyntheticTests(unittest.TestCase):
         self.assertIn("Incident: Error on Login Page - Click on Username", sms.messages[0].message)
         self.assertIn("Status: OPEN L1", sms.messages[0].message)
         self.assertIn("Flow Name: FileNet DocStore Flow", sms.messages[0].message)
+
+    def test_synthetic_initial_level_ignores_severity(self):
+        config = activation_config(syntheticEnabled=True, syntheticUseSameEscalation=False)
+
+        for severity in ("INFO", "ERROR", "AVAILABILITY"):
+            with self.subTest(severity=severity):
+                instance, _, synthetic_cache, sms = self.make_engine(config)
+                synthetic_problem = problem(
+                    problem_id=f"S-{severity}",
+                    entity_type="SYNTHETIC_TEST",
+                    severity=severity,
+                )
+
+                instance.process([synthetic_problem])
+
+                self.assertEqual(
+                    synthetic_cache.get(synthetic_problem.problem_id).escalation_level,
+                    "L1",
+                )
+                self.assertEqual(sms.messages[0].recipients, ["4444444444"])
+                self.assertIn("Status: OPEN L1", sms.messages[0].message)
+
+    def test_synthetic_dedicated_delays_wait_then_reach_l2_and_l3(self):
+        started = datetime.now(UTC) - timedelta(minutes=5)
+        config = activation_config(syntheticEnabled=True, syntheticUseSameEscalation=False)
+        instance, _, synthetic_cache, sms = self.make_engine(config)
+        synthetic_problem = problem(entity_type="HTTP_CHECK", start_time=started)
+
+        instance.process([synthetic_problem])
+        instance.process([synthetic_problem])
+        self.assertEqual(len(sms.messages), 1)
+        self.assertEqual(synthetic_cache.get("P-1").escalation_level, "L1")
+
+        synthetic_cache.get("P-1").start_time = datetime.now(UTC) - timedelta(minutes=15)
+        instance.process([synthetic_problem])
+        self.assertEqual(synthetic_cache.get("P-1").escalation_level, "L2")
+        self.assertEqual(sms.messages[-1].recipients, ["5555555555"])
+
+        synthetic_cache.get("P-1").start_time = datetime.now(UTC) - timedelta(minutes=25)
+        instance.process([synthetic_problem])
+        self.assertEqual(synthetic_cache.get("P-1").escalation_level, "L3")
+        self.assertEqual(sms.messages[-1].recipients, ["6666666666"])
 
     def test_synthetic_shared_settings_reuse_recipients_and_delays(self):
         started = datetime.now(UTC) - timedelta(minutes=35)
@@ -209,6 +301,46 @@ class SyntheticTests(unittest.TestCase):
 
         self.assertIn("Status: CLOSED", sms.messages[-1].message)
         self.assertNotIn("Status: CLOSED L1", sms.messages[-1].message)
+
+    def test_closure_notifications_are_cumulative_for_both_problem_types(self):
+        expected_recipients = {
+            "L1": ["1111111111"],
+            "L2": ["1111111111", "2222222222"],
+            "L3": ["1111111111", "2222222222", "3333333333"],
+        }
+
+        for entity_type in ("HOST", "SYNTHETIC_TEST"):
+            for level, recipients in expected_recipients.items():
+                with self.subTest(entity_type=entity_type, level=level):
+                    config = activation_config(syntheticEnabled=True, syntheticUseSameEscalation=True)
+                    instance, normal_cache, synthetic_cache, sms = self.make_engine(config)
+                    selected_cache = synthetic_cache if entity_type == "SYNTHETIC_TEST" else normal_cache
+                    closed_problem = problem(
+                        problem_id=f"C-{entity_type}-{level}",
+                        entity_type=entity_type,
+                        status="CLOSED",
+                        end_time=datetime.now(UTC),
+                    )
+                    selected_cache.put(
+                        CacheEntry(
+                            problem_id=closed_problem.problem_id,
+                            status="OPEN",
+                            start_time=closed_problem.start_time,
+                            escalation_level=level,
+                            last_notification_type="OPEN",
+                            last_updated=datetime.now(UTC),
+                        )
+                    )
+
+                    instance.process([closed_problem])
+
+                    self.assertEqual(
+                        [message.recipients[0] for message in sms.messages],
+                        recipients,
+                    )
+                    for message in sms.messages:
+                        self.assertIn("Status: CLOSED", message.message)
+                        self.assertNotIn("Status: CLOSED L", message.message)
 
     def test_existing_payload_includes_level_for_open_and_not_closed(self):
         open_message = SmsFormatter.build(problem(), NOTIFICATION_OPEN, "L3")
