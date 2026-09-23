@@ -177,6 +177,7 @@ class SmsEngine:
                         notification_type,
                         level,
                         synthetic,
+                        self._get_application_name(),
                     ),
                 )
             )
@@ -193,3 +194,9 @@ class SmsEngine:
             return escalation.l2.recipients
 
         return escalation.l3.recipients
+
+    def _get_application_name(self) -> str:
+        if not self._settings.management_zones:
+            return "N/A"
+
+        return self._settings.management_zones[0].name

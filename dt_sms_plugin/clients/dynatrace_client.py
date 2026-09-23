@@ -133,7 +133,12 @@ class DynatraceClient:
         details = data.get("evidenceDetails", {}).get("details", [])
 
         for detail in details:
-            for item in detail.get("data", []):
+            evidence_data = detail.get("data", {})
+            properties = (
+                evidence_data.get("properties", []) if isinstance(evidence_data, dict) else evidence_data
+            )
+
+            for item in properties:
                 if item.get("key") == SYNTHETIC_STEP_NAME_KEY:
                     return str(item.get("value", "")).strip()
 

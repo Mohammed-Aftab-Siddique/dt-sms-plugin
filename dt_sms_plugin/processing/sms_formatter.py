@@ -13,10 +13,8 @@ class SmsFormatter:
         notification_type: str,
         escalation_level: str,
         synthetic: bool = False,
+        application_name: str = "N/A",
     ) -> str:
-
-        management_zone = problem.management_zones[0] if problem.management_zones else "N/A"
-
         event_time = problem.end_time if notification_type == NOTIFICATION_CLOSED else problem.start_time
 
         time_text = event_time.astimezone(ZoneInfo("Asia/Kolkata")).strftime("%d-%b-%Y %H:%M:%S IST")
@@ -28,7 +26,7 @@ class SmsFormatter:
 
         if synthetic:
             return (
-                f"Application: {management_zone}\n"
+                f"Application: {application_name}\n"
                 f"Incident: {problem.synthetic_step_name or 'N/A'}\n"
                 f"Status: {status_text}\n"
                 f"Flow Name: {problem.monitor_name or 'N/A'}\n"
@@ -39,7 +37,7 @@ class SmsFormatter:
         entity_name = problem.affected_entities[0] if problem.affected_entities else "N/A"
 
         return (
-            f"Application: {management_zone}\n"
+            f"Application: {application_name}\n"
             f"Incident: {problem.title}\n"
             f"Severity: {problem.severity}\n"
             f"Status: {status_text}\n"

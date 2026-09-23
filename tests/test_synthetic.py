@@ -26,7 +26,7 @@ def activation_config(**overrides):
         "pollingInterval": 60,
         "lookbackWindow": 5,
         "maxProblemsPerExecution": 100,
-        "managementZones": [],
+        "managementZones": [{"name": "FileNet"}],
         "dynatraceUrl": "https://example.live.dynatrace.com",
         "dynatraceApiToken": "token",
         "l1Recipients": [{"number": "1111111111"}],
@@ -64,7 +64,7 @@ def problem(*, entity_type="HOST", status="OPEN", start_time=None, end_time=None
         severity="AVAILABILITY",
         impact_level="APPLICATION",
         entity_type=entity_type,
-        management_zones=["FileNet"],
+        management_zones=["API Response Zone"],
         start_time=start_time or datetime.now(UTC),
         end_time=end_time,
         affected_entities=["FileNet DocStore Flow"],
@@ -107,12 +107,14 @@ class SyntheticTests(unittest.TestCase):
             "evidenceDetails": {
                 "details": [
                     {
-                        "data": [
-                            {
-                                "key": "dt.synthetic.step.name",
-                                "value": "Error on Login Page - Click on Username",
-                            }
-                        ]
+                        "data": {
+                            "properties": [
+                                {
+                                    "key": "dt.synthetic.step.name",
+                                    "value": "Error on Login Page - Click on Username",
+                                }
+                            ]
+                        }
                     }
                 ]
             },
@@ -155,6 +157,8 @@ class SyntheticTests(unittest.TestCase):
         self.assertEqual(synthetic_cache.cache, {})
         self.assertEqual(sms.messages[0].recipients, ["3333333333"])
         self.assertIn("Incident: Existing incident", sms.messages[0].message)
+        self.assertIn("Application: FileNet", sms.messages[0].message)
+        self.assertNotIn("Application: API Response Zone", sms.messages[0].message)
         self.assertIn("Severity: AVAILABILITY", sms.messages[0].message)
         self.assertIn("Status: OPEN L3", sms.messages[0].message)
         self.assertIn("Entity: FileNet DocStore Flow", sms.messages[0].message)
@@ -168,6 +172,7 @@ class SyntheticTests(unittest.TestCase):
         self.assertEqual(normal_cache.cache, {})
         self.assertEqual(synthetic_cache.get("P-1").escalation_level, "L1")
         self.assertEqual(sms.messages[0].recipients, ["4444444444"])
+        self.assertIn("Application: FileNet", sms.messages[0].message)
         self.assertIn("Incident: Error on Login Page - Click on Username", sms.messages[0].message)
         self.assertIn("Status: OPEN L1", sms.messages[0].message)
         self.assertIn("Flow Name: FileNet DocStore Flow", sms.messages[0].message)

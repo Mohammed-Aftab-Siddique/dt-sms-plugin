@@ -309,6 +309,7 @@ Select **Use Same Escalation Settings** to reuse the standard L1/L2/L3 recipient
 severity selections are not applied to synthetic problems. If the option is cleared, configure dedicated
 synthetic recipients and delays.
 
+Both payload types use the first Management Zone configured in the activation settings as the application name.
 Synthetic payloads use the matching affected entity name as the flow name and the
 `dt.synthetic.step.name` evidence property as the incident name.
 
