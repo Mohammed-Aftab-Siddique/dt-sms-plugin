@@ -1,27 +1,65 @@
 # Dynatrace SMS Notification Plugin
 
-## Plugin Intro
+## Overview
 
 The **Dynatrace SMS Notification Plugin** is a custom Dynatrace Python extension that monitors Dynatrace problems and sends SMS notifications based on configurable severity and escalation rules.
 
-The plugin:
+### Common Capabilities
+
+The following capabilities are shared by both documented versions:
 
 - Polls Dynatrace for active and recently closed problems.
 - Supports filtering problems by Management Zones.
 - Sends SMS notifications for newly detected problems.
 - Supports **L1, L2, and L3 escalation levels**.
 - Escalates notifications based on configurable time thresholds.
-- Optionally handles `SYNTHETIC_TEST` and `HTTP_CHECK` problems with a dedicated payload and delay-only escalation.
 - Sends cumulative notifications when a problem is closed.
-- Maintains separate local caches for standard and synthetic problems.
+- Maintains local problem state to track notifications and escalation levels.
 - Supports **dry-run mode** for testing without sending SMS.
 - Publishes custom metrics for processing time, processed problems, SMS activity, and execution health.
+- Sends form-encoded requests to the configured SMS gateway.
 
 If no Management Zone is configured, the plugin treats the configuration as applying to **all Management Zones**.
 
 ---
 
-## Architecture
+## Capabilities by Version
+
+### v1.1.1 — Standard Problem Notifications
+
+Version 1.1.1 contains the original extension behavior:
+
+- Processes problems through a single standard-notification pipeline.
+- Selects the initial L1, L2, or L3 level from the Dynatrace problem severity.
+- Escalates existing open problems according to the configured L2 and L3 delays.
+- Sends cumulative closure notifications to every recipient level reached by the problem.
+- Uses `problem_cache.json` for problem and escalation state.
+- Uses the standard SMS payload containing Application, Incident, Severity, Status, Entity, Time, and `DT`.
+- Does not distinguish synthetic problems from other Dynatrace problems or provide synthetic-specific settings.
+
+### v2.0.0 — Synthetic Problem Support
+
+Version 2.0.0 preserves the standard-notification flow and adds:
+
+- Optional synthetic handling, disabled by default.
+- Detection of `SYNTHETIC_TEST` and `HTTP_CHECK` affected-entity types.
+- Complete exclusion of synthetic problems when synthetic handling is disabled.
+- A dedicated synthetic payload using:
+  - The first Management Zone from the activation settings as Application.
+  - `dt.synthetic.step.name` from problem evidence as Incident.
+  - The matching affected-entity name as Flow Name.
+- Delay-only synthetic escalation that always begins at L1 and does not use severity.
+- An option to reuse standard recipients and delays for synthetic escalation.
+- Dedicated synthetic L1/L2/L3 recipients and L2/L3 delays when shared settings are disabled.
+- Separate `problem_cache.json` and `synthetic_problem_cache.json` state files.
+- Escalation levels in all open statuses, such as `OPEN L1`, `OPEN L2`, and `OPEN L3`.
+- Closed statuses without an escalation suffix.
+- Conditional activation-schema fields and defaults for every non-nullable setting.
+- Retrieval and parsing of Dynatrace `evidenceDetails` for synthetic step names.
+
+---
+
+## Architecture (v2.0.0)
 
 ```text
                     ┌──────────────────────────┐
@@ -222,7 +260,7 @@ Example:
 
 ```yaml
 name: custom:dt-sms-plugin
-version: 1.0.12
+version: 2.0.0
 ```
 
 The Python package version is derived from `extension/extension.yaml`.
