@@ -32,24 +32,6 @@
     }
   },
   "types": {
-    "managementZone": {
-      "type": "object",
-      "summaryPattern": "{name}",
-      "properties": {
-        "name": {
-          "displayName": "Management Zone",
-          "type": "text",
-          "nullable": true,
-          "constraints": [
-            {
-              "type": "LENGTH",
-              "minLength": 1,
-              "maxLength": 50
-            }
-          ]
-        }
-      }
-    },
     "recipient": {
       "type": "object",
       "summaryPattern": "{number}",
@@ -122,19 +104,18 @@
           ],
           "default": 100
         },
-        "managementZones": {
-          "displayName": "Management Zones",
-          "type": "list",
-          "nullable": true,
-          "minItems": 0,
-          "items": {
-            "type": {
-              "$ref": "#/types/managementZone"
+        "managementZone": {
+          "displayName": "Management Zone",
+          "type": "text",
+          "nullable": false,
+          "default": "Management Zone",
+          "constraints": [
+            {
+              "type": "LENGTH",
+              "minLength": 1,
+              "maxLength": 50
             }
-          },
-          "metaData": {
-            "addItemButton": "Add Management Zone"
-          }
+          ]
         },
         "l1Recipients": {
           "displayName": "L1 Recipients",
@@ -485,19 +466,18 @@
           ],
           "default": 100
         },
-        "managementZones": {
-          "displayName": "Management Zones",
-          "type": "list",
-          "nullable": true,
-          "minItems": 0,
-          "items": {
-            "type": {
-              "$ref": "#/types/managementZone"
+        "managementZone": {
+          "displayName": "Management Zone",
+          "type": "text",
+          "nullable": false,
+          "default": "Management Zone",
+          "constraints": [
+            {
+              "type": "LENGTH",
+              "minLength": 1,
+              "maxLength": 50
             }
-          },
-          "metaData": {
-            "addItemButton": "Add Management Zone"
-          }
+          ]
         },
         "l1Recipients": {
           "displayName": "L1 Recipients",

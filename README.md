@@ -9,7 +9,7 @@ The **Dynatrace SMS Notification Plugin** is a custom Dynatrace Python extension
 The following capabilities are shared by both documented versions:
 
 - Polls Dynatrace for active and recently closed problems.
-- Supports filtering problems by Management Zones.
+- Filters problems by one required Management Zone configured during activation.
 - Sends SMS notifications for newly detected problems.
 - Supports **L1, L2, and L3 escalation levels**.
 - Escalates notifications based on configurable time thresholds.
@@ -18,8 +18,6 @@ The following capabilities are shared by both documented versions:
 - Supports **dry-run mode** for testing without sending SMS.
 - Publishes custom metrics for processing time, processed problems, SMS activity, and execution health.
 - Sends form-encoded requests to the configured SMS gateway.
-
-If no Management Zone is configured, the plugin treats the configuration as applying to **all Management Zones**.
 
 ---
 
@@ -45,7 +43,7 @@ Version 2.0.0 preserves the standard-notification flow and adds:
 - Detection of `SYNTHETIC_TEST` and `HTTP_CHECK` affected-entity types.
 - Complete exclusion of synthetic problems when synthetic handling is disabled.
 - A dedicated synthetic payload using:
-  - The first Management Zone from the activation settings as Application.
+  - The configured Management Zone from the activation settings as Application.
   - `dt.synthetic.step.name` from problem evidence as Incident.
   - The matching affected-entity name as Flow Name.
 - Delay-only synthetic escalation that always begins at L1 and does not use severity.
@@ -63,6 +61,12 @@ Version 2.0.1 keeps the main Problems API query at `pageSize=100` without expand
 handling is enabled, the extension retrieves `evidenceDetails` individually only for identified synthetic
 problems. This avoids the smaller page-size constraint applied by Dynatrace when expanded fields are requested
 on the problem-list endpoint. When synthetic handling is disabled, no evidence-detail requests are made.
+
+### v2.0.2 — Required Single Management Zone
+
+Version 2.0.2 replaces the optional Management Zone list with one required Management Zone activation field.
+That value filters the Problems API query and supplies the `Application` line in both standard and synthetic
+SMS payloads. Management-zone values returned in problem payloads are not used.
 
 ---
 
@@ -267,7 +271,7 @@ Example:
 
 ```yaml
 name: custom:dt-sms-plugin
-version: 2.0.1
+version: 2.0.2
 ```
 
 The Python package version is derived from `extension/extension.yaml`.
@@ -311,17 +315,10 @@ Provide:
 - Dynatrace URL.
 - Dynatrace API token.
 
-#### Management Zones
+#### Management Zone
 
-Specify the Management Zones to monitor.
-
-If the Management Zone list is left empty:
-
-```text
-[]
-```
-
-the plugin treats this as **all Management Zones**.
+Specify the single Management Zone to monitor. This field is required. The value is used both to filter the
+Dynatrace Problems API query and as the `Application` value in standard and synthetic SMS payloads.
 
 #### Escalation
 
@@ -354,7 +351,7 @@ Select **Use Same Escalation Settings** to reuse the standard L1/L2/L3 recipient
 severity selections are not applied to synthetic problems. If the option is cleared, configure dedicated
 synthetic recipients and delays.
 
-Both payload types use the first Management Zone configured in the activation settings as the application name.
+Both payload types use the Management Zone configured in the activation settings as the application name.
 Synthetic payloads use the matching affected entity name as the flow name and the
 `dt.synthetic.step.name` evidence property as the incident name.
 
@@ -440,17 +437,8 @@ Do not assume the key exists simply because it is present in the schema—inspec
 
 ### Management Zone configuration is empty
 
-An empty Management Zone configuration is intentional.
-
-The plugin supports:
-
-```text
-management_zones = []
-```
-
-as the equivalent of monitoring all Management Zones.
-
-Ensure that the Dynatrace problem query does not unintentionally reject an empty Management Zone list.
+The Management Zone activation field is required. Enter the exact zone name used in Dynatrace. The plugin
+uses it for Problems API filtering and for the `Application` line in both SMS payload formats.
 
 ### SMS API returns HTTP 406
 
@@ -554,7 +542,7 @@ max_problems_per_execution
 
 Also verify that the Management Zone configuration is correct.
 
-If Management Zones are intentionally empty, confirm that the problem query interprets the empty list as **all Management Zones**.
+Confirm that the configured Management Zone exactly matches the zone name in Dynatrace.
 
 ### Escalation is not occurring
 

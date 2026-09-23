@@ -17,8 +17,6 @@ class Problem:
     impact_level: str
     entity_type: str
 
-    management_zones: list[str]
-
     start_time: datetime
     end_time: datetime | None
 

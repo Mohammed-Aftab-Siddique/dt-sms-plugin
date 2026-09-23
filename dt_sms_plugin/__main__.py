@@ -69,7 +69,7 @@ class ExtensionImpl(Extension):
 
             problems = self.dt_client.fetch_problems(
                 lookback_minutes=self.settings.lookback_window,
-                management_zones=[mz.name for mz in self.settings.management_zones],
+                management_zone=self.settings.management_zone,
                 max_problems=self.settings.max_problems_per_execution,
                 fetch_synthetic_details=self.settings.synthetic.enabled,
             )

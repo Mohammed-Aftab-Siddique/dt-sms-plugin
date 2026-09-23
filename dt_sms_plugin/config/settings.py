@@ -3,16 +3,9 @@ from dt_sms_plugin.models.settings import (
     EscalationLevelSettings,
     EscalationSettings,
     ExtensionSettings,
-    ManagementZone,
     SmsApiSettings,
     SyntheticSettings,
 )
-
-
-def _load_management_zones(config: dict) -> list[ManagementZone]:
-    management_zones = config.get("managementZones", [])
-
-    return [ManagementZone(name=mz["name"]) for mz in management_zones if mz.get("name", "").strip()]
 
 
 def _load_escalation_level(
@@ -84,7 +77,7 @@ def load_settings(config: dict) -> ExtensionSettings:
         polling_interval=config["pollingInterval"],
         lookback_window=config["lookbackWindow"],
         max_problems_per_execution=config.get("maxProblemsPerExecution"),
-        management_zones=_load_management_zones(config),
+        management_zone=str(config.get("managementZone", "")).strip(),
         dynatrace=DynatraceSettings(
             url=config["dynatraceUrl"].rstrip("/"),
             api_token=config["dynatraceApiToken"],

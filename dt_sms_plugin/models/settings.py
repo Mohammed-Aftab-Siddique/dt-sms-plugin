@@ -8,11 +8,6 @@ class DynatraceSettings:
 
 
 @dataclass(slots=True)
-class ManagementZone:
-    name: str
-
-
-@dataclass(slots=True)
 class EscalationLevelSettings:
     severities: list[str] = field(default_factory=list)
     recipients: list[str] = field(default_factory=list)
@@ -49,7 +44,7 @@ class ExtensionSettings:
     lookback_window: int
     max_problems_per_execution: int | None
 
-    management_zones: list[ManagementZone]
+    management_zone: str
 
     dynatrace: DynatraceSettings
 

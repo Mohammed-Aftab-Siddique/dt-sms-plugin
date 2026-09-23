@@ -40,13 +40,9 @@ def _validate_escalation(settings: ExtensionSettings) -> None:
             raise ConfigurationError(f"{level_name} must contain at least one recipient.")
 
 
-def _validate_management_zones(settings: ExtensionSettings) -> None:
-    if not settings.management_zones:
-        return
-
-    for mz in settings.management_zones:
-        if not mz.name.strip():
-            raise ConfigurationError("Management Zone name cannot be empty.")
+def _validate_management_zone(settings: ExtensionSettings) -> None:
+    if not settings.management_zone:
+        raise ConfigurationError("Management Zone is required.")
 
 
 def _validate_level(
@@ -99,7 +95,7 @@ def _validate_sms_api(settings: ExtensionSettings) -> None:
 
 def validate_settings(settings: ExtensionSettings) -> None:
     _validate_polling(settings)
-    _validate_management_zones(settings)
+    _validate_management_zone(settings)
     _validate_escalation(settings)
     _validate_recipients(settings)
     _validate_sms_api(settings)

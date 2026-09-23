@@ -7,11 +7,13 @@ from pathlib import Path
 from dt_sms_plugin.cache.cache_manager import CacheManager
 from dt_sms_plugin.clients.dynatrace_client import DynatraceClient
 from dt_sms_plugin.config.settings import load_settings
+from dt_sms_plugin.config.validator import validate_settings
 from dt_sms_plugin.models.cache import CacheEntry
 from dt_sms_plugin.models.problem import Problem
 from dt_sms_plugin.processing.sms_engine import SmsEngine
 from dt_sms_plugin.processing.sms_formatter import SmsFormatter
 from dt_sms_plugin.utils.constants import NOTIFICATION_CLOSED, NOTIFICATION_OPEN
+from dt_sms_plugin.utils.exceptions import ConfigurationError
 
 
 class FakeSmsClient:
@@ -49,7 +51,7 @@ def activation_config(**overrides):
         "pollingInterval": 60,
         "lookbackWindow": 5,
         "maxProblemsPerExecution": 100,
-        "managementZones": [{"name": "FileNet"}],
+        "managementZone": "FileNet",
         "dynatraceUrl": "https://example.live.dynatrace.com",
         "dynatraceApiToken": "token",
         "l1Recipients": [{"number": "1111111111"}],
@@ -95,7 +97,6 @@ def problem(
         severity=severity,
         impact_level="APPLICATION",
         entity_type=entity_type,
-        management_zones=["API Response Zone"],
         start_time=start_time or datetime.now(UTC),
         end_time=end_time,
         affected_entities=["FileNet DocStore Flow"],
@@ -157,24 +158,6 @@ class SyntheticTests(unittest.TestCase):
         self.assertEqual(parsed.monitor_name, "FileNet DocStore Flow")
         self.assertEqual(parsed.synthetic_step_name, "Error on Login Page - Click on Username")
 
-    def test_dynatrace_client_ignores_management_zone_entries_without_names(self):
-        payload = {
-            "problemId": "P-1",
-            "status": "OPEN",
-            "severityLevel": "AVAILABILITY",
-            "startTime": 1_700_000_000_000,
-            "affectedEntities": [{"entityId": {"type": "HOST"}, "name": "Host"}],
-            "managementZones": [
-                {"id": "123456789"},
-                {"name": "  FileNet  "},
-                {},
-            ],
-        }
-
-        parsed = DynatraceClient._to_problem(object.__new__(DynatraceClient), payload)
-
-        self.assertEqual(parsed.management_zones, ["FileNet"])
-
     def test_problem_list_fetches_details_only_for_synthetic_problems(self):
         standard_data = {
             "problemId": "STANDARD-1",
@@ -218,13 +201,17 @@ class SyntheticTests(unittest.TestCase):
         client._timeout = 30
         client._session = session
 
-        problems = client.fetch_problems(5, [], 100, fetch_synthetic_details=True)
+        problems = client.fetch_problems(5, "FileNet", 100, fetch_synthetic_details=True)
 
         self.assertEqual(len(problems), 2)
         self.assertEqual(problems[0].synthetic_step_name, "")
         self.assertEqual(problems[1].synthetic_step_name, "Login step")
         self.assertEqual(session.calls[0]["params"]["pageSize"], 100)
         self.assertNotIn("fields", session.calls[0]["params"])
+        self.assertEqual(
+            session.calls[0]["params"]["problemSelector"],
+            'status("open"),managementZones("FileNet")',
+        )
         self.assertEqual(
             session.calls[1],
             {
@@ -248,7 +235,7 @@ class SyntheticTests(unittest.TestCase):
         client._timeout = 30
         client._session = session
 
-        problems = client.fetch_problems(5, [], 100, fetch_synthetic_details=False)
+        problems = client.fetch_problems(5, "FileNet", 100, fetch_synthetic_details=False)
 
         self.assertEqual(len(problems), 1)
         self.assertEqual(len(session.calls), 1)
@@ -266,6 +253,32 @@ class SyntheticTests(unittest.TestCase):
                     missing_defaults.append(f"{type_name}.{property_name}")
 
         self.assertEqual(missing_defaults, [])
+
+    def test_activation_schema_requires_one_management_zone_text_value(self):
+        schema_path = Path(__file__).parents[1] / "extension" / "activationSchema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+
+        for activation_type in ("pythonRemote", "pythonLocal"):
+            properties = schema["types"][activation_type]["properties"]
+            management_zone = properties["managementZone"]
+
+            self.assertNotIn("managementZones", properties)
+            self.assertEqual(management_zone["type"], "text")
+            self.assertFalse(management_zone["nullable"])
+            self.assertIn("default", management_zone)
+
+    def test_management_zone_is_trimmed_and_required(self):
+        settings = load_settings(activation_config(managementZone="  FileNet  "))
+        self.assertEqual(settings.management_zone, "FileNet")
+
+        empty_settings = load_settings(activation_config(managementZone="   "))
+        with self.assertRaisesRegex(ConfigurationError, "Management Zone is required"):
+            validate_settings(empty_settings)
+
+        missing_config = activation_config()
+        del missing_config["managementZone"]
+        with self.assertRaisesRegex(ConfigurationError, "Management Zone is required"):
+            validate_settings(load_settings(missing_config))
 
     def test_disabled_synthetic_problem_is_ignored(self):
         instance, normal_cache, synthetic_cache, sms = self.make_engine(activation_config())

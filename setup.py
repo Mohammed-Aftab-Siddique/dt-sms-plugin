@@ -10,7 +10,7 @@ def find_version() -> str:
         with open(extension_yaml_path, encoding="utf-8") as f:
             for line in f:
                 if line.startswith("version"):
-                    version = line.split(" ")[-1].strip('"')
+                    version = line.split(" ")[-1].strip().strip('"')
                     break
     except Exception:
         pass
