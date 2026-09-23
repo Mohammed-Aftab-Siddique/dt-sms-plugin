@@ -32,12 +32,12 @@ class DynatraceClient:
         lookback_minutes: int,
         management_zones: list[str],
         max_problems: int | None,
+        fetch_synthetic_details: bool = False,
     ) -> list[Problem]:
         params = {
             "pageSize": 100,
             "from": f"-{lookback_minutes}m",
             "to": "now",
-            "fields": "evidenceDetails",
         }
 
         selectors = ['status("open")']
@@ -54,9 +54,7 @@ class DynatraceClient:
         next_page_key = None
 
         while True:
-            request_params = (
-                {"nextPageKey": next_page_key, "fields": "evidenceDetails"} if next_page_key else params
-            )
+            request_params = {"nextPageKey": next_page_key} if next_page_key else params
 
             try:
                 response = self._session.get(
@@ -75,10 +73,17 @@ class DynatraceClient:
 
             payload = response.json()
 
-            problems.extend(self._to_problem(problem) for problem in payload.get("problems", []))
+            for problem_data in payload.get("problems", []):
+                if max_problems is not None and len(problems) >= max_problems:
+                    return problems
+
+                if fetch_synthetic_details and self._is_synthetic_problem(problem_data):
+                    problem_data = self._fetch_problem_details(problem_data["problemId"])
+
+                problems.append(self._to_problem(problem_data))
 
             if max_problems is not None and len(problems) >= max_problems:
-                return problems[:max_problems]
+                return problems
 
             next_page_key = payload.get("nextPageKey")
 
@@ -86,6 +91,33 @@ class DynatraceClient:
                 break
 
         return problems
+
+    def _fetch_problem_details(self, problem_id: str) -> dict:
+        url = f"{self._base_url}/api/v2/problems/{problem_id}"
+
+        try:
+            response = self._session.get(
+                url,
+                params={"fields": "evidenceDetails"},
+                timeout=self._timeout,
+            )
+
+            if not response.ok:
+                raise DynatraceClientError(
+                    f"HTTP {response.status_code}\nURL: {response.url}\nResponse: {response.text}"
+                )
+
+        except requests.RequestException as exc:
+            raise DynatraceClientError(f"Failed to fetch problem details: {exc}") from exc
+
+        return response.json()
+
+    @staticmethod
+    def _is_synthetic_problem(data: dict) -> bool:
+        return any(
+            entity.get("entityId", {}).get("type", "").strip().upper() in SYNTHETIC_ENTITY_TYPES
+            for entity in data.get("affectedEntities", [])
+        )
 
     def _to_problem(
         self,

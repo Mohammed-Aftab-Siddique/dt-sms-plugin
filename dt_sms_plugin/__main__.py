@@ -71,6 +71,7 @@ class ExtensionImpl(Extension):
                 lookback_minutes=self.settings.lookback_window,
                 management_zones=[mz.name for mz in self.settings.management_zones],
                 max_problems=self.settings.max_problems_per_execution,
+                fetch_synthetic_details=self.settings.synthetic.enabled,
             )
 
             self.engine.process(problems)

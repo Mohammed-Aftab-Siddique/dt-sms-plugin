@@ -22,6 +22,28 @@ class FakeSmsClient:
         self.messages.append(sms)
 
 
+class FakeResponse:
+    def __init__(self, payload, url="https://example.live.dynatrace.com/api/v2/problems"):
+        self._payload = payload
+        self.url = url
+        self.ok = True
+        self.status_code = 200
+        self.text = json.dumps(payload)
+
+    def json(self):
+        return self._payload
+
+
+class FakeSession:
+    def __init__(self, responses):
+        self.responses = list(responses)
+        self.calls = []
+
+    def get(self, url, params, timeout):
+        self.calls.append({"url": url, "params": params, "timeout": timeout})
+        return self.responses.pop(0)
+
+
 def activation_config(**overrides):
     config = {
         "pollingInterval": 60,
@@ -134,6 +156,86 @@ class SyntheticTests(unittest.TestCase):
         self.assertTrue(parsed.is_synthetic)
         self.assertEqual(parsed.monitor_name, "FileNet DocStore Flow")
         self.assertEqual(parsed.synthetic_step_name, "Error on Login Page - Click on Username")
+
+    def test_problem_list_fetches_details_only_for_synthetic_problems(self):
+        standard_data = {
+            "problemId": "STANDARD-1",
+            "status": "OPEN",
+            "severityLevel": "INFO",
+            "startTime": 1_700_000_000_000,
+            "affectedEntities": [{"entityId": {"type": "HOST"}, "name": "Host"}],
+        }
+        synthetic_data = {
+            "problemId": "SYNTHETIC-1",
+            "status": "OPEN",
+            "severityLevel": "AVAILABILITY",
+            "startTime": 1_700_000_000_000,
+            "affectedEntities": [{"entityId": {"type": "SYNTHETIC_TEST"}, "name": "Synthetic Monitor"}],
+        }
+        synthetic_details = {
+            **synthetic_data,
+            "evidenceDetails": {
+                "details": [
+                    {
+                        "data": {
+                            "properties": [
+                                {
+                                    "key": "dt.synthetic.step.name",
+                                    "value": "Login step",
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+        }
+        session = FakeSession(
+            [
+                FakeResponse({"problems": [standard_data, synthetic_data]}),
+                FakeResponse(synthetic_details),
+            ]
+        )
+        client = object.__new__(DynatraceClient)
+        client._base_url = "https://example.live.dynatrace.com"
+        client._timeout = 30
+        client._session = session
+
+        problems = client.fetch_problems(5, [], 100, fetch_synthetic_details=True)
+
+        self.assertEqual(len(problems), 2)
+        self.assertEqual(problems[0].synthetic_step_name, "")
+        self.assertEqual(problems[1].synthetic_step_name, "Login step")
+        self.assertEqual(session.calls[0]["params"]["pageSize"], 100)
+        self.assertNotIn("fields", session.calls[0]["params"])
+        self.assertEqual(
+            session.calls[1],
+            {
+                "url": "https://example.live.dynatrace.com/api/v2/problems/SYNTHETIC-1",
+                "params": {"fields": "evidenceDetails"},
+                "timeout": 30,
+            },
+        )
+
+    def test_disabled_synthetic_handling_makes_no_detail_request(self):
+        synthetic_data = {
+            "problemId": "SYNTHETIC-1",
+            "status": "OPEN",
+            "severityLevel": "AVAILABILITY",
+            "startTime": 1_700_000_000_000,
+            "affectedEntities": [{"entityId": {"type": "HTTP_CHECK"}, "name": "HTTP Monitor"}],
+        }
+        session = FakeSession([FakeResponse({"problems": [synthetic_data]})])
+        client = object.__new__(DynatraceClient)
+        client._base_url = "https://example.live.dynatrace.com"
+        client._timeout = 30
+        client._session = session
+
+        problems = client.fetch_problems(5, [], 100, fetch_synthetic_details=False)
+
+        self.assertEqual(len(problems), 1)
+        self.assertEqual(len(session.calls), 1)
+        self.assertNotIn("fields", session.calls[0]["params"])
+        self.assertEqual(problems[0].synthetic_step_name, "")
 
     def test_all_non_nullable_activation_properties_have_defaults(self):
         schema_path = Path(__file__).parents[1] / "extension" / "activationSchema.json"

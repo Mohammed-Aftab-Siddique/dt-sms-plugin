@@ -57,6 +57,13 @@ Version 2.0.0 preserves the standard-notification flow and adds:
 - Conditional activation-schema fields and defaults for every non-nullable setting.
 - Retrieval and parsing of Dynatrace `evidenceDetails` for synthetic step names.
 
+### v2.0.1 — Selective Synthetic Evidence Retrieval
+
+Version 2.0.1 keeps the main Problems API query at `pageSize=100` without expanded fields. When synthetic
+handling is enabled, the extension retrieves `evidenceDetails` individually only for identified synthetic
+problems. This avoids the smaller page-size constraint applied by Dynatrace when expanded fields are requested
+on the problem-list endpoint. When synthetic handling is disabled, no evidence-detail requests are made.
+
 ---
 
 ## Architecture (v2.0.0)
@@ -260,7 +267,7 @@ Example:
 
 ```yaml
 name: custom:dt-sms-plugin
-version: 2.0.0
+version: 2.0.1
 ```
 
 The Python package version is derived from `extension/extension.yaml`.
